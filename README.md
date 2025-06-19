@@ -1,4 +1,4 @@
-# 🧬 TidyTool (Phylogeny Cleaner)
+# TidyTool
 
 **TidyTool** is a desktop application for analyzing, filtering, and cleaning biological sequences in FASTA format. It provides a powerful and intuitive **PyQt6-based GUI** for:
 
@@ -9,31 +9,30 @@
 
 ---
 
-## ⚙️ Features
+## Features
 
-- 📂 Load multiple FASTA files at once
-- 🧹 Remove duplicates (by name, sequence, or both)
-- 🔍 Filter sequences based on:
+- Load multiple FASTA files at once
+- Remove duplicates (by name, sequence, or both)
+- Filter sequences based on:
   - Name (partial or full match),
   - Sequence similarity (custom threshold),
   - Length range (min/max),
   - Start codon (`M` for proteins, `ATG` for genes),
   - Score and E-value (parsed from BLAST headers)
-- 📊 Interactive histogram display:
+- Interactive histogram display:
   - Lengths
   - Score
   - E-values — switchable by button
-- 📤 Export selected sequences to a FASTA file
-- 🖱️ Right-click on a sequence → see full FASTA in a copyable popup
+- Export selected sequences to a FASTA file
+- Right-click on a sequence → see full FASTA in a copyable popup
 
 ---
 
-## 🧱 Requirements
+## Requirements
 
-- Python `>=3.9`
+- Python `>=3.7`
 - `PyQt6`
 - `matplotlib`
-- `biopython`
 - `sqlite3` (built into Python)
 
 Install dependencies:
@@ -43,7 +42,7 @@ pip install -r requirements.txt
 
 ---
 
-## ▶️ How to Run
+## How to Run
 
 1. Launch the app:
 ```bash
@@ -62,38 +61,52 @@ python main.py
 
 ---
 
-## 📁 Folder Structure
+## Folder Structure
 
 ```
 .
-├── gui.py                  # main GUI
-├── fasta_utils.py          # FASTA logic
-├── blast_utils.py          # BLAST execution
-├── blast_parser.py         # BLAST XML parsing
-├── draw_utils.py           # plotting logic
-├── thread_utils.py         # background threads
-├── move_utils.py           # list management helpers
-├── sequences.db            # SQLite database with sequences
+├── Libraries
+├	├── blast_parser.py         # BLAST XML parsing
+├	├── blast_utils.py          # BLAST execution
+├	├── blast_view.py           # BLAST plot view
+├	├── draw_utils.py           # plotting logic
+├	├── fasta_utils.py          # FASTA logic
+├	├── gui.py                  # main GUI
+├	├── move_utils.py           # list management helpers
+├	├── thread_utils.py         # background threads
+├── BLAST
+├	├── blastn.exe
+├	├── blastp.exe
+├	├── blastx.exe
+├	├── makeblastdb.exe
+├	├── ncbi-vdb-md.dll
+├	├── nghttp2.dll
+├── BAZA
+├	├── database_here.txt
+├── Resources
+├	├── tidytool.png
+├── main.py
+├── requirements.txt
 └── README.md
 ```
 
 ---
 
-## 🧪 Sample Data
+## Sample Data
 
 You can use any FASTA-formatted files containing protein or gene sequences.
 We recommend UniProt, Ensembl, or NCBI RefSeq for testing.
 
 ---
 
-## 👨‍🔬 Authors
+## Authors
 
 - Aleksandra Liszka
 - Artur Stołowski
 
 ---
 
-## 📜 License
+## License
 
 This project is open-source for educational and research purposes.  
 There is no guarantee of biological correctness — use at your own risk 😉
