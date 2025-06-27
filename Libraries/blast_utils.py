@@ -1,10 +1,25 @@
-from blast_parser import parse_blast_output
+# This file is part of TidyTool
+# Copyright (c) 2025 Aleksandra Liszka, Artur Stołowski, Aleksandra Marcisz
+# Licensed under the MIT License
 
+from blast_parser import parse_blast_output
 import subprocess
 from PyQt6.QtWidgets import QFileDialog, QMessageBox
 
 
 ###################### CREATING DATABASE ########################################
+#   LOAD PREVIOUS
+def load_prev_database(widget, label_to_update):
+    merged_path = "merged_database.fasta"
+    try:
+        import os
+        
+        label_to_update.setText("merged_database.fasta")
+        db_name = os.path.splitext(os.path.basename(merged_path))[0]
+        QMessageBox.information(widget, "Success", f"Database loaded: {db_name}")
+    except Exception as e:
+        QMessageBox.critical(widget, "Error", f"Failed to load database: {e}")
+
 #   PROT DATABASE
 def choose_database(widget, label_to_update):
     from PyQt6.QtWidgets import QFileDialog, QMessageBox
@@ -300,7 +315,134 @@ def run_blastx(widget, input_textbox, output_textbox, db_label):
 
     except Exception as e:
         QMessageBox.critical(widget, "BLAST Error", str(e))
+        
+        
 
+def run_tblastn(widget, input_textbox, output_textbox, db_label):
+    from PyQt6.QtWidgets import QMessageBox
+    import subprocess
+    import os
+    from blast_parser import parse_blast_output
+
+    try:
+        sequences = input_textbox.toPlainText().strip()
+        if not sequences:
+            QMessageBox.warning(widget, "Error", "No sequences provided.")
+            return
+
+        db_name = db_label.text().strip()
+        if db_name.lower() == "none":
+            QMessageBox.warning(widget, "Error", "No database selected.")
+            return
+
+        # SAVE QUERY FOR BLAST
+        with open("s.txt", "w", encoding="utf-8") as f:
+            f.write(sequences.replace("\n", os.linesep))
+
+        # RUN BLAST
+        subprocess.run([
+            "BLAST/tblastn",
+            "-query", "s.txt",
+            "-db", f"baza/merged_database",
+            "-out", "output.xml",
+            "-outfmt", "5"
+        ], check=True)
+
+        # READ QUERY FOR MAKING OUTPUT FILE
+        seq_dict = {}
+        with open("s.txt", "r", encoding="utf-8") as f:
+            content = f.read().strip().split(">")
+            for entry in content:
+                if not entry:
+                    continue
+                parts = entry.split("\n", 1)
+                if len(parts) == 2:
+                    header = parts[0].strip()
+                    sequence = parts[1].replace("\n", "")
+                    seq_dict[header] = sequence
+
+        # PARSE AND SAVE sequences.txt
+        parse_blast_output("output.xml", seq_dict, "blast_out.txt")
+
+        # SHOW FILE ON APPLICATION WINDOW
+        with open("blast_out.txt", "r", encoding="utf-8") as f:
+            output_textbox.setPlainText(f.read())
+        
+        
+        from blast_view import parse_blast_xml
+        query_alignments = parse_blast_xml("output.xml")
+        widget.query_list_widget.clear()
+        for query in query_alignments:
+            widget.query_list_widget.addItem(query)
+            
+        QMessageBox.information(widget, "BLAST", "BLAST complete!")
+
+    except Exception as e:
+        QMessageBox.critical(widget, "BLAST Error", str(e))
+
+
+
+def run_tblastx(widget, input_textbox, output_textbox, db_label):
+    from PyQt6.QtWidgets import QMessageBox
+    import subprocess
+    import os
+    from blast_parser import parse_blast_output
+
+    try:
+        sequences = input_textbox.toPlainText().strip()
+        if not sequences:
+            QMessageBox.warning(widget, "Error", "No sequences provided.")
+            return
+
+        db_name = db_label.text().strip()
+        if db_name.lower() == "none":
+            QMessageBox.warning(widget, "Error", "No database selected.")
+            return
+
+        # SAVE QUERY FOR BLAST
+        with open("s.txt", "w", encoding="utf-8") as f:
+            f.write(sequences.replace("\n", os.linesep))
+
+        # RUN BLAST
+        subprocess.run([
+            "BLAST/tblastx",
+            "-query", "s.txt",
+            "-db", f"baza/merged_database",
+            "-out", "output.xml",
+            "-outfmt", "5"
+        ], check=True)
+
+        # READ QUERY FOR MAKING OUTPUT FILE
+        seq_dict = {}
+        with open("s.txt", "r", encoding="utf-8") as f:
+            content = f.read().strip().split(">")
+            for entry in content:
+                if not entry:
+                    continue
+                parts = entry.split("\n", 1)
+                if len(parts) == 2:
+                    header = parts[0].strip()
+                    sequence = parts[1].replace("\n", "")
+                    seq_dict[header] = sequence
+
+        # PARSE AND SAVE sequences.txt
+        parse_blast_output("output.xml", seq_dict, "blast_out.txt")
+
+        # SHOW FILE ON APPLICATION WINDOW
+        with open("blast_out.txt", "r", encoding="utf-8") as f:
+            output_textbox.setPlainText(f.read())
+        
+        
+        from blast_view import parse_blast_xml
+        query_alignments = parse_blast_xml("output.xml")
+        widget.query_list_widget.clear()
+        for query in query_alignments:
+            widget.query_list_widget.addItem(query)
+            
+        QMessageBox.information(widget, "BLAST", "BLAST complete!")
+
+    except Exception as e:
+        QMessageBox.critical(widget, "BLAST Error", str(e))
 
 #/////////////////////////////////////////////////////////////////////////////////////////
 ########################## SAVE SEQUENCES WITH BLAST INFO ################################

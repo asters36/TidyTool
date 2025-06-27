@@ -1,3 +1,7 @@
+# This file is part of TidyTool
+# Copyright (c) 2025 Aleksandra Liszka, Artur Stołowski, Aleksandra Marcisz
+# Licensed under the MIT License
+
 import matplotlib.patches
 import sys
 from PyQt6.QtWidgets import (
@@ -11,15 +15,17 @@ from PyQt6.QtGui import QPixmap, QIcon, QBrush, QColor
 from PyQt6.QtCore import Qt, QItemSelectionModel
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+import matplotlib.patches
 
 
 class ChartWidget(QWidget):
-    ####################### ------- #####################
     def __init__(self, title):
         super().__init__()
         layout = QVBoxLayout()
+        layout.setSpacing(0)
+        layout.setContentsMargins(0, 0, 0, 0) 
         self.label = QLabel(title)
-        layout.addWidget(self.label)
+        #layout.addWidget(self.label)
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
         layout.addWidget(self.canvas)
@@ -34,13 +40,12 @@ class ChartWidget(QWidget):
 
 ############## LIBRARIES #######################
 from thread_utils import DeleteDuplicatesWorker
-from fasta_utils import load_fasta_file, clean_fasta_entries, save_fasta_to_db, delete_duplicates, fetch_all_sequences, fetch_filtered_sequences, fetch_advanced_filtered_sequences
-from draw_utils import draw_length_histogram, draw_bitscore_histogram, draw_evalue_histogram
-import matplotlib.patches
+from fasta_utils import load_fasta_file, save_fasta_to_db, fetch_all_sequences, fetch_advanced_filtered_sequences
+from draw_utils import draw_length_histogram, draw_bitscore_histogram, draw_evalue_histogram, draw_alength_histogram
 from move_utils import move_checked_items
-from blast_utils import choose_database, choose_database_n, run_blast,run_blastn,run_blastx, save_sequences_from_blast
+from blast_utils import load_prev_database, choose_database, choose_database_n, run_blast,run_blastn,run_blastx, save_sequences_from_blast, run_tblastn, run_tblastx
 from blast_view import parse_blast_xml, BlastAlignmentViewer
- 
+
 
 class MainWindow(QMainWindow):
 
@@ -84,7 +89,7 @@ class MainWindow(QMainWindow):
         separator = QFrame()
         separator.setFrameShape(QFrame.Shape.HLine)
         separator.setFrameShadow(QFrame.Shadow.Sunken)
-        separator.setFixedHeight(4)
+        separator.setFixedHeight(2)
         separator.setStyleSheet("color: gray; background-color: gray;")
         return separator
     ########## HORIZONTAL SPACE #################
@@ -92,7 +97,7 @@ class MainWindow(QMainWindow):
         hor_space = QFrame()
         hor_space.setFrameShape(QFrame.Shape.HLine)
         hor_space.setFrameShadow(QFrame.Shadow.Plain)
-        hor_space.setFixedHeight(15)
+        hor_space.setFixedHeight(4)
         return hor_space
         
     
@@ -126,7 +131,7 @@ class MainWindow(QMainWindow):
         #------------------
         self.label_file = QLabel("File:")
         self.label_file_name = QLabel("None")
-        self.load_button = QPushButton("Load Files")
+        self.load_button = QPushButton("Choose FASTA Files")
         self.load_button.setFixedSize(150, 40)
         self.load_button.clicked.connect(self.load_file)
         #------------------
@@ -163,7 +168,7 @@ class MainWindow(QMainWindow):
         checkbox_row.addWidget(self.sequence_box)
         checkbox_row.addWidget(self.show_removed_button)
         #------------------
-        self.clean_button = QPushButton("Clean")
+        self.clean_button = QPushButton("Clean/Analyze")
         self.clean_button.setFixedSize(150, 40)
         self.clean_button.clicked.connect(self.clean_file)
         self.clean_button.setEnabled(False)
@@ -203,6 +208,8 @@ class MainWindow(QMainWindow):
         length_row.addWidget(self.len_box_low)
         length_row.addWidget(QLabel("MAX:"))
         length_row.addWidget(self.len_box_hi)
+        self.label_min = QLabel("MIN")
+        self.label_max = QLabel("MAX")
         #------------------
         
         
@@ -240,10 +247,25 @@ class MainWindow(QMainWindow):
         eval_row.addWidget(self.eval_box_hi)
         #------------------
         
+        self.alength_checkbox_obj = QCheckBox("Al.Length")
+        self.alength_checkbox_obj.setEnabled(False) 
         
-
-        self.label_min = QLabel("MIN")
-        self.label_max = QLabel("MAX")
+        alength_row = QHBoxLayout()
+        self.alength_box_low = QSpinBox()
+        self.alength_box_low.setMaximum(900000)
+        self.alength_box_low.setFixedWidth(70)
+        self.alength_box_hi = QSpinBox()
+        self.alength_box_hi.setMaximum(900000)
+        self.alength_box_hi.setFixedWidth(70)
+        alength_row.addWidget(self.alength_checkbox_obj)
+        alength_row.addWidget(QLabel("MIN:"))
+        alength_row.addWidget(self.alength_box_low)
+        alength_row.addWidget(QLabel("MAX:"))
+        alength_row.addWidget(self.alength_box_hi)
+        
+        #------------------
+        
+        
         #------------------
         self.label_status = QLabel("Status:")
         #------------------
@@ -292,7 +314,8 @@ class MainWindow(QMainWindow):
         left_layout.addLayout(filter_checkbox_row)
         left_layout.addLayout(length_row)  
         left_layout.addLayout(score_row)  
-        left_layout.addLayout(eval_row)  
+        left_layout.addLayout(eval_row) 
+        left_layout.addLayout(alength_row)        
         left_layout.addWidget(self.make_hor_space())  
         left_layout.addWidget(self.analyze_button, alignment=Qt.AlignmentFlag.AlignHCenter)
         left_layout.addWidget(self.reset_button, alignment=Qt.AlignmentFlag.AlignHCenter)
@@ -352,15 +375,19 @@ class MainWindow(QMainWindow):
         self.filter_select_all_checkbox = QCheckBox("Select all")
         self.filter_select_all_checkbox.stateChanged.connect(self.toggle_select_all_selected)
         #------------------
-        self.label_similarity = QLabel("Similarity [%]")
+        self.label_similarity = QLabel("Identity [%]")
         #------------------
         self.accuracy_box = QSpinBox()
         self.accuracy_box.setFixedWidth(70)
         self.accuracy_box.setMaximum(100)
         self.accuracy_box.setValue(100)
         #------------------
-        self.filter_textbox = QLineEdit()
+        #self.filter_one_textbox = QLineEdit()
+        #self.filter_one_textbox.setPlaceholderText("Type parts of name (Separate by comma [,])")
        # self.filter_textbox.textChanged.connect(self.apply_filters)
+        self.filter_textbox = QTextEdit()
+        self.filter_textbox.setPlaceholderText("Paste one or more names (Names separate by [ENTER], parts of single name separate by [ , ])")
+        self.filter_textbox.setFixedHeight(60)  # lub inna wysokość
         #------------------
         self.sequence_textbox = QLineEdit()
         #self.sequence_textbox.textChanged.connect(self.apply_filters)
@@ -374,32 +401,87 @@ class MainWindow(QMainWindow):
         self.reset_button.setFixedSize(150, 40)
         self.reset_button.clicked.connect(self.reset_filters)
         #------------------
+        
+        self.info1_button = QPushButton("?")
+        self.info1_button.clicked.connect(self.info1)
+        self.info1_button.setFixedSize(30, 20)
         #------------------
-        widgets = [
-            self.label_genes, self.genes_list, self.amount_label, self.select_all_checkbox, 
-            QLabel("Filter by name:"), self.filter_textbox,
-            QLabel("Filter by sequence:"), self.sequence_textbox,self.label_similarity, self.accuracy_box, self.add_button, self.make_hor_separator(),
-            self.label_selected_names, self.selected_names_listbox, self.amount2_label,self.filter_select_all_checkbox,
-            self.remove_button
-        ]
+        
+        layout.addWidget(self.label_genes, alignment=Qt.AlignmentFlag.AlignHCenter)
+        layout.addWidget(self.genes_list)
         #------------------
-        for widget in widgets:
-            layout.addWidget(widget)
+        sel_all_box = QHBoxLayout()
+        sel_all_box.addWidget(self.amount_label)
+        sel_all_box.addStretch()
+        sel_all_box.addWidget(self.select_all_checkbox)
+        layout.addLayout(sel_all_box)
+        #------------------
+        info1_box = QHBoxLayout()
+        info1_box.addWidget(QLabel("Filter by names:"))
+        info1_box.addWidget(self.info1_button)
+        layout.addLayout(info1_box)
+        layout.addWidget(self.filter_textbox)
+        layout.addWidget(QLabel("Filter by sequence:"))
+        layout.addWidget(self.sequence_textbox)
+        layout.addWidget(self.label_similarity)
+        layout.addWidget(self.accuracy_box)
+        layout.addWidget(self.add_button)
+        layout.addWidget(self.make_hor_separator())
+        layout.addWidget(self.label_selected_names)
+        layout.addWidget(self.selected_names_listbox)
+        layout.addWidget(self.amount2_label)
+        layout.addWidget(self.filter_select_all_checkbox)
+        layout.addWidget(self.remove_button)
+        
         return layout
         #------------------
         #------------------
     ############## RIGHT PANEL ##########################
     def setup_right_panel(self):
+    
+        self.label_histograms = QLabel("Histograms")
+        font_bold = self.label_histograms.font()
+        font_bold.setBold(True)
+        font_bold.setPointSize(14)
+        self.label_histograms.setFont(font_bold)
+        
         layout = QVBoxLayout()
-        self.chart1 = ChartWidget("E-Value Histogram")
-        self.chart2 = ChartWidget("Score Histogram")
-        self.chart3 = ChartWidget("Lengths Histogram")
+        histograms_buttons = QHBoxLayout()
+        histograms_buttons.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        Length_histogram_button = QPushButton("LENGTH")
+        Length_histogram_button.setFixedSize(150, 40)
+        #Length_histogram_button.connect(lambda: choose_database(self, self.label_database_name))
+        
+        Score_histogram_button = QPushButton("SCORE")
+        Score_histogram_button.setFixedSize(150, 40)
+        
+        Eval_histogram_button = QPushButton("E-VALUE")
+        Eval_histogram_button.setFixedSize(150, 40)
+        
+        ALength_histogram_button = QPushButton("AL. LENGTH")
+        ALength_histogram_button.setFixedSize(150, 40)
+        
+        
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+
+        self.chart1 = ChartWidget("")
+        self.chart2 = ChartWidget("")
+        self.chart3 = ChartWidget("")
+        self.chart4 = ChartWidget("")
+
+        
         #self.chart1.figure.patch.set_facecolor("darkgray")
         #self.chart2.figure.patch.set_facecolor("darkgray")
         #self.chart3.figure.patch.set_facecolor("darkgray")
+        
+        layout.addWidget(self.label_histograms, alignment=Qt.AlignmentFlag.AlignHCenter)
+        
         layout.addWidget(self.chart3)
         layout.addWidget(self.chart2)
         layout.addWidget(self.chart1)
+        layout.addWidget(self.chart4)
         return layout
         
         
@@ -407,54 +489,66 @@ class MainWindow(QMainWindow):
         
     ######################### LOAD FASTA FILE ########################################
     def load_file(self):
+        from fasta_utils import load_fasta_file, save_fasta_to_db
+        from PyQt6.QtWidgets import QFileDialog, QMessageBox
+        import sqlite3
+        import os
+        import time
+
         file_names, _ = QFileDialog.getOpenFileNames(
             self, "Open FASTA Files", "", "FASTA Files (*.fasta *.fa *.txt);;All Files (*)"
         )
-        if file_names:
-            #self.label_file_name.setText(", ".join([f.split("/")[-1] for f in file_names]))
-            self.loaded_files = file_names
-            self.label_status_text.setText("Files selected")
-            self.clean_button.setEnabled(True)
-            self.save_fasta_button.setEnabled(True)
-            self.analyze_button.setEnabled(False)
-            self.show_files_button.setEnabled(True)
 
-            import os
-            import time
-            if os.path.exists("sequences.db"):
-                os.remove("sequences.db")
+        if not file_names:
+            return
 
-            from fasta_utils import load_fasta_file, save_fasta_to_db
+        self.loaded_files = file_names
+        self.label_status_text.setText("Files selected")
+        self.clean_button.setEnabled(True)
+        self.save_fasta_button.setEnabled(True)
+        self.analyze_button.setEnabled(False)
+        self.show_files_button.setEnabled(True)
 
-            total_files = len(file_names)
-            self.progress_dialog = QProgressDialog("Loading sequences...", "Cancel", 0, total_files, self)
-            self.progress_dialog.setWindowTitle("Loading FASTA")
-            self.progress_dialog.setWindowModality(Qt.WindowModality.ApplicationModal)
-            self.progress_dialog.setMinimumDuration(0)
-            self.progress_dialog.setValue(0)
-            self.progress_dialog.show()
+        # Read sequences from clean database
+        try:
+            with sqlite3.connect("sequences.db") as conn:
+                c = conn.cursor()
+                c.execute("DROP TABLE IF EXISTS sequences")
+                c.execute("CREATE TABLE sequences (id INTEGER PRIMARY KEY AUTOINCREMENT, header TEXT, sequence TEXT)")
+                conn.commit()
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to reset database: {e}")
+            return
+
+        # ProgressBar
+        total_files = len(file_names)
+        self.progress_dialog = QProgressDialog("Loading sequences...", "Cancel", 0, total_files, self)
+        self.progress_dialog.setWindowTitle("Loading FASTA")
+        self.progress_dialog.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.progress_dialog.setMinimumDuration(0)
+        self.progress_dialog.setValue(0)
+        self.progress_dialog.show()
+        QApplication.processEvents()
+
+        for i, file_path in enumerate(file_names):
+            with open(file_path, "r", encoding="utf-8") as fasta_file:
+                save_fasta_to_db(fasta_file, db_path="sequences.db", append=True)
+
+            self.progress_dialog.setValue(i + 1)
             QApplication.processEvents()
-            
-            for i, file_path in enumerate(file_names):
-                fasta_lines = load_fasta_file(file_path)
-                save_fasta_to_db(fasta_lines, "sequences.db", append=True)
+            time.sleep(0.1)
+            if self.progress_dialog.wasCanceled():
+                break
 
-                self.progress_dialog.setValue(i + 1)
-                QApplication.processEvents()
-                time.sleep(0.2)
-                if self.progress_dialog.wasCanceled():
-                    break
+        self.progress_dialog.close()
+        QMessageBox.information(self, "Done", "All FASTA files loaded.")
 
-            self.progress_dialog.close()
-            from PyQt6.QtWidgets import QMessageBox
-            QMessageBox.information(self, "Done", "All FASTA files loaded.")
-
-            self.genes_list.clear()
-            self.selected_names_listbox.clear()
-            self.min_seq_len = float("inf")
-            self.max_seq_len = 0
-            
-            
+        self.genes_list.clear()
+        self.selected_names_listbox.clear()
+        self.min_seq_len = float("inf")
+        self.max_seq_len = 0
+        
+        
     def show_loaded_files(self):
         from PyQt6.QtWidgets import QMessageBox
         if hasattr(self, "loaded_files") and self.loaded_files:
@@ -470,6 +564,7 @@ class MainWindow(QMainWindow):
     def clean_file(self):
         from PyQt6.QtWidgets import QProgressDialog
         from PyQt6.QtCore import Qt
+        import time
 
         check_name = self.name_box.isChecked()
         check_sequence = self.sequence_box.isChecked()
@@ -485,49 +580,48 @@ class MainWindow(QMainWindow):
         self.worker.progress_text.connect(self.update_progress_text)
         self.worker.finished.connect(self.on_cleaning_finished)
         self.worker.start()
+       
 
     ############# CLEANING END ############################
-    def on_cleaning_finished(self, remaining_sequences, total_before, total_after):
-        from fasta_utils import fetch_all_sequences                                           
+    def on_cleaning_finished(self, _unused, total_before, total_after):
+        import re
+        import sqlite3
+
         self.progress_dialog.close()
         self.genes_list.clear()
         self.hist_lengths = []
         self.min_seq_len = float("inf")
         self.max_seq_len = 0
 
-        self.cleaned_sequences = remaining_sequences
-        
-        from fasta_utils import load_fasta_file
-        original_lines = []
-        for f in getattr(self, "loaded_files", []):
-            original_lines.extend(load_fasta_file(f))
-       # Parsuj wszystkie sekwencje bez usuwania duplikatów
-        original_sequences = []
-        current_header = None
-        current_sequence = ""
-        for line in original_lines:
-            line = line.strip()
-            if line.startswith(">"):
-                if current_header and current_sequence:
-                    original_sequences.append((current_header, current_sequence))
-                current_header = line
-                current_sequence = ""
-            else:
-                current_sequence += line
-        if current_header and current_sequence:
-            original_sequences.append((current_header, current_sequence))
-            
-        cleaned_set = set(seq.upper().replace(" ", "") for _, seq in self.cleaned_sequences)
-        self.removed_sequences = [
-            (h, s) for h, s in original_sequences
-            if s.upper().replace(" ", "") not in cleaned_set
-        ]        
-                                                    
-        for header, sequence in remaining_sequences:
-            self.genes_list.addItem(f"{header} [{len(sequence)}]")
-            self.hist_lengths.append(len(sequence))
-            self.min_seq_len = min(self.min_seq_len, len(sequence))
-            self.max_seq_len = max(self.max_seq_len, len(sequence))
+
+        # Reading clean database
+        try:
+            with sqlite3.connect("cleaned.db") as conn:
+                c = conn.cursor()
+                c.execute("SELECT header, sequence FROM sequences")
+
+                alignment_lengths = []
+
+                self.genes_list.setUpdatesEnabled(False)
+                self.genes_list.setSortingEnabled(False)
+
+                for header, sequence in c:                    
+                    self.genes_list.addItem(f"{header} [{len(sequence)}]")
+                    seq_len = len(sequence)
+                    self.hist_lengths.append(seq_len)
+                    self.min_seq_len = min(self.min_seq_len, seq_len)
+                    self.max_seq_len = max(self.max_seq_len, seq_len)
+
+                    match = re.search(r"Alignment Length: (\d+)", header)
+                    if match:
+                        alignment_lengths.append(int(match.group(1)))
+
+                self.genes_list.setSortingEnabled(True)
+                self.genes_list.setUpdatesEnabled(True)
+
+        except Exception as e:
+            print("Error reading cleaned.db:", e)
+            return
 
         self.label_removed.setText(f"Removed {total_before - total_after} sequences")
         self.label_inout.setText(f"Input: {total_before} Output: {total_after}")
@@ -536,6 +630,17 @@ class MainWindow(QMainWindow):
         self.label_max.setText(str(self.max_seq_len))
         self.len_box_low.setValue(self.min_seq_len)
         self.len_box_hi.setValue(self.max_seq_len)
+
+        if alignment_lengths:
+            min_al = min(alignment_lengths)
+            max_al = max(alignment_lengths)
+            self.alength_checkbox_obj.setEnabled(True)
+            self.alength_box_low.setValue(min_al)
+            self.alength_box_hi.setValue(max_al)
+            self.label_min.setText(str(min_al))
+            self.label_max.setText(str(max_al))
+        else:
+            self.alength_checkbox_obj.setEnabled(False)
 
         self.analyze_button.setEnabled(True)
         self.length_checkbox_obj.setEnabled(True)
@@ -550,13 +655,12 @@ class MainWindow(QMainWindow):
         self.eval_checkbox_obj.setEnabled(True)
         self.reset_button.setEnabled(True)
         self.show_removed_button.setEnabled(True)
-        self.show_duplicates_button.setEnabled(True)                                            
+        self.show_duplicates_button.setEnabled(True)
 
         draw_length_histogram(self.chart3, self.hist_lengths)
-        
-        headers = [self.genes_list.item(i).text() for i in range(self.genes_list.count())]
-        draw_bitscore_histogram(self.chart2, headers)
-        draw_evalue_histogram(self.chart1, headers)
+        draw_bitscore_histogram(self.chart2, [self.genes_list.item(i).text() for i in range(self.genes_list.count())])
+        draw_evalue_histogram(self.chart1, [self.genes_list.item(i).text() for i in range(self.genes_list.count())])
+        draw_alength_histogram(self.chart4, alignment_lengths)
         
     def show_removed_sequences(self):
         from PyQt6.QtWidgets import QDialog, QVBoxLayout, QListWidget, QPushButton
@@ -649,6 +753,7 @@ class MainWindow(QMainWindow):
         
     def show_sequence_context_menu(self, position):
         from PyQt6.QtWidgets import QMenu, QMessageBox
+        from fasta_utils import fetch_all_sequences
 
         item = self.genes_list.itemAt(position)
         if item is None:
@@ -659,15 +764,17 @@ class MainWindow(QMainWindow):
         action = menu.exec(self.genes_list.viewport().mapToGlobal(position))
 
         if action == show_action:
-           
-            header_text = item.text().split(" [")[0]
-            
-            
-            from fasta_utils import fetch_all_sequences
+            # Pobieramy tekst z listy i wyciągamy nazwę do spacji
+            full_text = item.text().split(" [")[0].strip()
+            header_text = full_text.split()[0]  # np. >sp|P12345|PROT_A
+
             for header, seq in fetch_all_sequences("sequences.db"):
-                if header == header_text:
+                header_main = header.strip().split()[0]  # porównywalny format
+                if header_main == header_text:
                     self.show_sequence_dialog(header, seq)
                     break
+            else:
+                QMessageBox.warning(self, "Not found", "Sequence not found in database.")
 
     from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QPlainTextEdit, QPushButton
 
@@ -697,55 +804,6 @@ class MainWindow(QMainWindow):
         dialog.exec()
     
     ####################### FILTERING ############################
-    def apply_filters(self):
-        from PyQt6.QtWidgets import QProgressDialog, QApplication
-        from fasta_utils import fetch_filtered_sequences
-
-        name_query = self.filter_textbox.text().strip().lower()
-        name_terms = [term.strip() for term in name_query.split(",") if term.strip()]
-        seq_query = self.sequence_textbox.text().strip().lower()
-        seq_terms = [term.strip() for term in seq_query.split(",") if term.strip()]
-        threshold = self.accuracy_box.value()
-
-        self.genes_list.clear()
-
-        self.progress_dialog2 = QProgressDialog("Filtering...", "Cancel", 0, 100, self)
-        self.progress_dialog2.setWindowTitle("Filtering Sequences")
-        self.progress_dialog2.setWindowModality(Qt.WindowModality.ApplicationModal)
-        self.progress_dialog2.setMinimumDuration(0)
-        self.progress_dialog2.setValue(0)
-        self.progress_dialog2.show()
-        QApplication.processEvents()
-        
-        def update_progress(value):
-            self.progress_dialog2.setValue(value)
-            QApplication.processEvents()
-            if self.progress_dialog2.wasCanceled():
-                raise Exception("Filtering cancelled")
-
-        try:
-            filtered = fetch_filtered_sequences(
-                name_terms=name_terms,
-                seq_terms=seq_terms,
-                similarity_threshold=threshold,
-                db_path="sequences.db",
-                progress_callback=update_progress
-            )
-        except Exception as e:
-            self.progress_dialog2.close()
-            from PyQt6.QtWidgets import QMessageBox
-            QMessageBox.warning(self, "Aborted", str(e))
-            return
-
-        
-
-        for header, sequence in filtered:
-            item = QListWidgetItem(f"{header} [{len(sequence)}]")
-            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
-            self.genes_list.addItem(item)
-        self.progress_dialog2.close()
-        self.amount_label.setText(f"Records: {self.genes_list.count()}")
-    
 
     def filter_all(self):
         from PyQt6.QtWidgets import QProgressDialog, QApplication, QMessageBox
@@ -753,7 +811,10 @@ class MainWindow(QMainWindow):
 
         self.genes_list.clear()
 
-        name_terms = [t.strip().lower() for t in self.filter_textbox.text().strip().split(",") if t.strip()]
+        #name_terms = [t.strip().lower() for t in self.filter_textbox.text().strip().split(",") if t.strip()]
+        import re
+        raw_text = self.filter_textbox.toPlainText()
+        name_terms = [line.strip() for line in raw_text.strip().splitlines() if line.strip()]
         seq_terms = [t.strip().lower() for t in self.sequence_textbox.text().strip().split(",") if t.strip()]
         threshold = self.accuracy_box.value()
 
@@ -784,6 +845,16 @@ class MainWindow(QMainWindow):
             check_eval = False
             min_eval = 0
             max_eval = 100
+            
+        check_alength = getattr(self, "alength_checkbox_obj", None)
+        if check_alength:
+            check_alength = check_alength.isChecked()
+            min_alength = self.alength_box_low.value()
+            max_alength = self.alength_box_hi.value()
+        else:
+            check_alength = False
+            min_alength = 0
+            max_alength = 1000000
 
         self.progress_dialog = QProgressDialog("Filtering...", "Cancel", 0, 100, self)
         self.progress_dialog.setWindowTitle("Filtering Sequences")
@@ -816,6 +887,9 @@ class MainWindow(QMainWindow):
                 check_eval=check_eval,
                 min_eval=min_eval,
                 max_eval=max_eval,
+                check_alength=check_alength,
+                min_alength=min_alength,
+                max_alength=max_alength,
                 db_path="sequences.db",
                 progress_callback=update_progress
             )
@@ -1016,13 +1090,17 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Not Found", f"No alignments found for: {query_name}")
             return
 
-        # <- zapamiętaj referencję
+
         self.viewer_window = BlastAlignmentViewer(query_name, query_alignments[query_name])
         self.viewer_window.show()
         self.viewer_window.raise_()
         self.viewer_window.activateWindow()
         
-    ######################## BLAST UI ###############################
+    def info1(self):
+        from PyQt6.QtWidgets import QMessageBox
+        QMessageBox.information(self, "INFO", "Paste one or more names (Separate by [ENTER], parts of single name separate by [ , ])")
+        
+    ##################################################### BLAST UI ######################################################
     def setup_blast_tab(self):
         main_layout = QHBoxLayout()
         left_layout = QVBoxLayout()
@@ -1032,7 +1110,7 @@ class MainWindow(QMainWindow):
         outer_layout = QVBoxLayout()
         outer_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         
-        self.blast_title = QLabel("BLAST")
+        self.blast_title = QLabel("BLAST+")
         font_big = self.blast_title.font()
         font_big.setBold(True)
         font_big.setPointSize(20)
@@ -1047,9 +1125,9 @@ class MainWindow(QMainWindow):
         load_base_layout = QHBoxLayout()
         load_base_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        self.load_base_button = QPushButton("LOAD DATABASE")
-        self.load_base_button.setFixedSize(150, 40)
-        #self.base_select_button.clicked.connect(lambda: load_database(self, self.label_database_name))
+        self.load_base_button = QPushButton("LOAD CREATED DATABASE")
+        self.load_base_button.setFixedSize(200, 40)
+        self.load_base_button.clicked.connect(lambda: load_prev_database(self,self.label_database_name))
         
         load_base_layout.addWidget(self.load_base_button)
         
@@ -1069,6 +1147,7 @@ class MainWindow(QMainWindow):
         self.label_sequences = QLabel("Query sequences")
         self.label_sequences.setFont(font_bold2)
         self.rich_text_sequences = QTextEdit()
+        self.rich_text_sequences.setPlaceholderText("Paste query sequences here")
         self.label_result = QLabel("Result")
         self.label_result.setFont(font_bold2)
         self.rich_text_result = QTextEdit()
@@ -1089,6 +1168,12 @@ class MainWindow(QMainWindow):
         self.blastx_button = QPushButton("Run BLASTX")
         self.blastx_button.setFixedSize(150, 40)
         self.blastx_button.clicked.connect(lambda: run_blastx(self, self.rich_text_sequences, self.rich_text_result, self.label_database_name))
+        self.tblastn_button = QPushButton("Run TBLASTN")
+        self.tblastn_button.setFixedSize(150, 40)
+        self.tblastn_button.clicked.connect(lambda: run_tblastn(self, self.rich_text_sequences, self.rich_text_result, self.label_database_name))
+        self.tblastx_button = QPushButton("Run TBLASTX")
+        self.tblastx_button.setFixedSize(150, 40)
+        self.tblastx_button.clicked.connect(lambda: run_tblastx(self, self.rich_text_sequences, self.rich_text_result, self.label_database_name))
         self.open_blast_button = QPushButton("Open BLAST")
         self.save_sequences_button = QPushButton("Save Sequences")
         self.save_sequences_button.setFixedSize(150, 40)
@@ -1102,6 +1187,8 @@ class MainWindow(QMainWindow):
         runblast_layout.addWidget(self.blast_button)
         runblast_layout.addWidget(self.blastn_button)
         runblast_layout.addWidget(self.blastx_button)
+        runblast_layout.addWidget(self.tblastn_button)
+        runblast_layout.addWidget(self.tblastx_button)
         
         widgets = [
             self.label_database_file,
@@ -1134,7 +1221,11 @@ class MainWindow(QMainWindow):
         self.view_alignment_button.clicked.connect(self.view_selected_alignment)
         right_layout.addWidget(QLabel("Query list"))
         right_layout.addWidget(self.query_list_widget)
-        right_layout.addWidget(self.view_alignment_button)
+        blast_info_layout = QHBoxLayout()
+        blast_info_layout.addWidget(self.view_alignment_button)
+        blast_info_layout.addStretch()
+        blast_info_layout.addWidget(QLabel("BLAST+ tools developed by the National Center for Biotechnology Information (NCBI)"))
+        right_layout.addLayout(blast_info_layout)
         
         #---------------------------RIGHT---------------------------
         #main_layout.addWidget(self.make_separator())

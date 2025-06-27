@@ -1,3 +1,7 @@
+# This file is part of TidyTool
+# Copyright (c) 2025 Aleksandra Liszka, Artur Stołowski, Aleksandra Marcisz
+# Licensed under the MIT License
+
 
 import xml.etree.ElementTree as ET
 from collections import defaultdict
@@ -47,7 +51,6 @@ class BlastAlignmentViewer(QWidget):
         for aln in alignments:
             grouped[aln["hit_def"]].append(aln)
 
-        # Sortujemy wg maksymalnej długości dopasowania
         sorted_hits = sorted(grouped.items(), key=lambda item: -max(a["alignment_length"] for a in item[1]))
 
         fig_height = max(4, len(sorted_hits) * 0.4)
@@ -82,24 +85,34 @@ class BlastAlignmentViewer(QWidget):
 
         all_alignments = [aln for _, alns in sorted_alignments for aln in alns]
         query_len = max((aln["query_len"] for aln in all_alignments), default=100)
-        ax.set_xticks(range(0, query_len + 1, max(10, query_len // 20)))
-        ax.set_xticklabels(range(0, query_len + 1, max(10, query_len // 20)), fontsize=8)
+        tick_step = 10
+        ax.set_xticks(range(0, query_len + tick_step, tick_step))
+        ax.set_xticklabels(range(0, query_len + tick_step, tick_step), fontsize=8)
 
         bar_height = 0.12
         row_spacing = 0.5
         text_offset = 0.2
         total = len(sorted_alignments)
+        
+        reference_y = total * row_spacing + 0.3  # wyżej niż wszystkie alignments
+        ax.broken_barh([(0, query_len)], (reference_y - bar_height / 2, bar_height), facecolors='black')
+        ax.text(-5, reference_y, "Query", ha='right', va='center', fontsize=8, color='black')
 
         for i, (hit_def, alignments) in enumerate(sorted_alignments):
-            y = (total - 1 - i) * row_spacing  # 👈 odwracamy kolejność
+            y = (total - 1 - i) * row_spacing
             for aln in alignments:
                 start = min(aln["from"], aln["to"])
                 length = abs(aln["to"] - aln["from"])
                 ax.broken_barh([(start, length)], (y - bar_height / 2, bar_height), facecolors='blue')
+                ax.text(start + length / 2, y + bar_height / 1.5,  # środek nad paskiem
+                str(length),
+                ha='center', va='bottom',
+                fontsize=7, color='black', rotation=0)
             ax.text(-5, y, hit_def, ha='right', va='center', fontsize=8, color='black')
-
+    
+        ax.set_ylim(0, (total + 1) * row_spacing + 0.5)
         ax.set_xlim(0, query_len)
-        ax.set_ylim(0, total * row_spacing + 0.5)
+        #ax.set_ylim(0, total * row_spacing + 0.5)
         ax.set_yticks([])
         ax.grid(True, linestyle=':', linewidth=0.5)
 

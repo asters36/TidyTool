@@ -1,3 +1,6 @@
+# This file is part of TidyTool
+# Copyright (c) 2025 Aleksandra Liszka, Artur Stołowski, Aleksandra Marcisz
+# Licensed under the MIT License
 
 import xml.etree.ElementTree as ET
 

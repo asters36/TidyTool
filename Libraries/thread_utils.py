@@ -1,5 +1,8 @@
+# This file is part of TidyTool
+# Copyright (c) 2025 Aleksandra Liszka, Artur Stołowski, Aleksandra Marcisz
+# Licensed under the MIT License
+
 from PyQt6.QtCore import QThread, pyqtSignal
-from fasta_utils import delete_duplicates, fetch_all_sequences
 import sqlite3
 
 class DeleteDuplicatesWorker(QThread):
@@ -15,68 +18,82 @@ class DeleteDuplicatesWorker(QThread):
 
     def run(self):
         import time
-        start_time = time.time()
-
-        self.progress_text.emit("Fetching sequences...")
-
-        conn = sqlite3.connect(self.db_path)
-        c = conn.cursor()
-        c.execute("SELECT id, header, sequence FROM sequences")
-        rows = c.fetchall()
-        total = len(rows)
-
-        self.progress_text.emit(f"Filtering {total} sequences...")
+        import sqlite3
+        import gc
+        
         seen = {}
+        id_map = {}
         removed = []
 
-        for i, (row_id, header, sequence) in enumerate(rows):
-            if self.check_name and self.check_sequence:
-                key = header + sequence
-            elif self.check_name:
-                key = header
-            elif self.check_sequence:
-                key = sequence
-            else:
-                key = header + sequence
+        start_time = time.time()
+        self.progress_text.emit("Connecting to database...")
 
-            if key not in seen:
-                seen[key] = row_id
-            else:
-                removed.append((header, sequence))
+        try:
+            conn = sqlite3.connect(self.db_path)
+            c = conn.cursor()
 
-            # Emit progress every 1%
-            if i % max(1, total // 100) == 0:
-                self.progress_percent.emit(int((i + 1) / total * 100))
+            #Count records
+            c.execute("SELECT COUNT(*) FROM sequences")
+            total = c.fetchone()[0]
+            self.progress_text.emit(f"Filtering {total} sequences...")
 
-        to_keep_ids = set(seen.values())
-        to_delete = [(row_id,) for (row_id, _, _) in rows if row_id not in to_keep_ids]
+            query = "SELECT id, header, sequence FROM sequences"
+            rows = c.execute(query)
 
-        self.progress_text.emit("Deleting duplicates...")
-        BATCH_SIZE = 1000
-        delete_total = len(to_delete)
+            for i, (row_id, header, sequence) in enumerate(rows):
+                if self.check_name and self.check_sequence:
+                    key = header + sequence
+                elif self.check_name:
+                    key = header
+                elif self.check_sequence:
+                    key = sequence
+                else:
+                    key = header + sequence
 
-        conn.execute("BEGIN TRANSACTION")
-        for i in range(0, delete_total, BATCH_SIZE):
-            batch = to_delete[i:i + BATCH_SIZE]
-            c.executemany("DELETE FROM sequences WHERE id = ?", batch)
-            self.progress_percent.emit(100 if delete_total == 0 else int((i + len(batch)) / delete_total * 100))
-        conn.commit()
+                if key not in seen:
+                    seen[key] = row_id
+                    id_map[row_id] = (row_id, header, sequence)
+                else:
+                    removed.append((header, sequence))
 
-        self.progress_text.emit("Saving duplicates...")
-        with sqlite3.connect("duplicates.db") as dup_conn:
-            dup_c = dup_conn.cursor()
-            dup_c.execute("DROP TABLE IF EXISTS sequences")
-            dup_c.execute("CREATE TABLE sequences (header TEXT, sequence TEXT)")
-            if removed:
-                dup_c.executemany("INSERT INTO sequences (header, sequence) VALUES (?, ?)", removed)
-            dup_conn.commit()
+                if i % max(1, total // 100) == 0:
+                    self.progress_percent.emit(int((i + 1) / total * 100))
 
-        self.progress_text.emit("Loading cleaned data...")
-        c.execute("SELECT header, sequence FROM sequences")
-        remaining = c.fetchall()
-        conn.close()
+            conn.close()
+            
+            # Save duplicates
+            self.progress_text.emit("Saving duplicates...")
+            with sqlite3.connect("duplicates.db") as dup_conn:
+                dup_c = dup_conn.cursor()
+                dup_c.execute("DROP TABLE IF EXISTS sequences")
+                dup_c.execute("CREATE TABLE sequences (header TEXT, sequence TEXT)")
+                if removed:
+                    dup_c.executemany("INSERT INTO sequences (header, sequence) VALUES (?, ?)", removed)
+                dup_conn.commit()
 
-        elapsed = time.time() - start_time
-        print(f"Finished in {elapsed:.2f} seconds")
+            del removed
+            gc.collect()
 
-        self.finished.emit(remaining, total, len(remaining))
+            # Save clean database
+            self.progress_text.emit("Saving cleaned database...")
+            with sqlite3.connect("cleaned.db") as clean_conn:
+                clean_c = clean_conn.cursor()
+                clean_c.execute("DROP TABLE IF EXISTS sequences")
+                clean_c.execute("CREATE TABLE sequences (header TEXT, sequence TEXT)")
+                clean_c.executemany(
+                    "INSERT INTO sequences (header, sequence) VALUES (?, ?)",
+                    [(h, s) for _, (_, h, s) in id_map.items()]
+                )
+                clean_conn.commit()
+
+            gc.collect()
+
+            elapsed = time.time() - start_time
+            print(f"Cleaning finished in {elapsed:.2f} seconds")
+
+            self.finished.emit([], total, len(seen))
+
+        except Exception as e:
+            print("Błąd w run():", e)
+            self.progress_text.emit(f"Błąd: {e}")
+            self.finished.emit([], 0, 0)

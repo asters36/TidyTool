@@ -1,3 +1,7 @@
+# This file is part of TidyTool
+# Copyright (c) 2025 Aleksandra Liszka, Artur Stołowski, Aleksandra Marcisz
+# Licensed under the MIT License
+
 from PyQt6.QtCore import Qt
 
 def move_checked_items(source_list, target_list):
