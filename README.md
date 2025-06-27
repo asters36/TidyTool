@@ -57,7 +57,7 @@ python main.py
 3. In the **BLAST** tab:
    - Choose a BLAST database,
    - Run BLAST search with selected sequences,
-   - Open and visualize the results with interactive filters.
+   - Open and visualize the results.
 
 ---
 
