@@ -1,3 +1,7 @@
+# This file is part of TidyTool
+# Copyright (c) 2025 Aleksandra Liszka & Artur Stołowski
+# Licensed under the MIT License
+
 import sys
 sys.path.append('./libraries') 
 sys.path.append('./resources')
