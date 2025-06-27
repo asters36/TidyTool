@@ -123,7 +123,7 @@ class MainWindow(QMainWindow):
         inner_left_widget = QWidget()
         left_layout = QVBoxLayout(inner_left_widget)
         #------------------
-        self.label_analyse = QLabel("Analyse FASTA")
+        self.label_analyse = QLabel("Analyze FASTA")
         font_bold = self.label_analyse.font()
         font_bold.setBold(True)
         font_bold.setPointSize(14)
