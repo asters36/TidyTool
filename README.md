@@ -8,6 +8,9 @@
 - Displaying histograms for score, E-value, and sequence length.
 
 ---
+![ScreenShot](Resources/screenshot.png)
+
+---
 
 ## Features
 
@@ -27,9 +30,7 @@
 - Right-click on a sequence → see full FASTA in a copyable popup
 
 ---
-![ScreenShot](Resources/screenshot.png)
 
----
 ## Requirements
 
 - Python `>=3.7`
