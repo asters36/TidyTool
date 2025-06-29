@@ -1,6 +1,6 @@
 # TidyTool
 
-**TidyTool** is a desktop application for analyzing, filtering, and cleaning biological sequences in FASTA format. It provides a powerful and intuitive **PyQt6-based GUI** for:
+**TidyTool** is a user-friendly, graphical application designed to facilitate working with sequence databases, especially for researchers without advanced bioinformatics skills. It provides a powerful and intuitive **PyQt6-based GUI** for:
 
 - Removing duplicate sequences,
 - Filtering sequences by name, length, or similarity,
@@ -96,7 +96,7 @@ python3 main.py
      - None selected (does not remove duplicates),
    - Click **Clean/Analyse** to start analyzing the selected files,
    - The headers will appear in the **Genes** window,
-   If a file containing integrated BLAST information is loaded, the Score and E-value histograms will be generated automatically.
+   if a file containing integrated BLAST information is loaded, the Score and E-value histograms will be generated automatically.
    - You can choose which histogram to display in each of the three panels by clicking the corresponding buttons,
    - You can choose which filter to apply by clicking the corresponding checkbox next to its name,
    - After entering the filter parameters, click the **Filter** button to display only the sequences that match the selected filters,
