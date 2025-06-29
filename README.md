@@ -13,13 +13,14 @@
 ---
 
 ## Features
-BLAST+:
+**BLAST+**:
 - Load multiple FASTA files at once for creating BLAST database
 - Run BLASTP, BLASTN, BLASTX, TBLASTN or TBLASTX
 - Show Alignments (BLAST output file, -outfrm 0)
 - Show Alignment coverage plots
 - Export FASTA file with BLAST headers for further analyse in "Clean" tab
-Cleaner:
+
+**Cleaner**:
 - Load multiple FASTA files at once
 - Remove duplicates (by name, sequence, or both)
 - Filter sequences based on:
