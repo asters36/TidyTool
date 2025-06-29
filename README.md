@@ -13,7 +13,13 @@
 ---
 
 ## Features
-
+BLAST+:
+- Load multiple FASTA files at once for creating BLAST database
+- Run BLASTP, BLASTN, BLASTX, TBLASTN or TBLASTX
+- Show Alignments (BLAST output file, -outfrm 0)
+- Show Alignment coverage plots
+- Export FASTA file with BLAST headers for further analyse in "Clean" tab
+Cleaner:
 - Load multiple FASTA files at once
 - Remove duplicates (by name, sequence, or both)
 - Filter sequences based on:
@@ -21,11 +27,14 @@
   - Sequence similarity (custom threshold),
   - Length range (min/max),
   - Start codon (`M` for proteins, `ATG` for genes),
-  - Score and E-value (parsed from BLAST headers)
+  - Score, E-value, Alignment Length, Identity, Similarity (parsed from BLAST headers)
 - Interactive histogram display:
-  - Lengths
+  - Length
   - Score
-  - E-values — switchable by button
+  - E-value
+  - Alignment Length
+  - Identity
+  - Similarity — switchable by button
 - Export selected sequences to a FASTA file
 - Right-click on a sequence → see full FASTA in a copyable popup
 
