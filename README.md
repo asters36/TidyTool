@@ -8,8 +8,8 @@
 - Displaying histograms for score, E-value, and sequence length.
 
 ---
-![ScreenShot](Resources/b_screen.png)
-![ScreenShot2](Resources/c_screen.png)
+![ScreenShot](resources/b_screen.png)
+![ScreenShot2](resources/c_screen.png)
 ---
 
 ## Features
