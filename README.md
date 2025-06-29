@@ -49,7 +49,6 @@ sudo apt install python3-pyqt6 python3-matplotlib
 ```
 Mac:
 ```bash
-brew install blast
 pip3 install -r requirements.txt
 ```
 ---
