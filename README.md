@@ -38,18 +38,36 @@
 - `matplotlib`
 - `sqlite3` (built into Python)
 
+Windows:
 Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
-
+Linux:
+```bash
+sudo apt install python3-pyqt6 python3-matplotlib
+```
+Mac:
+```bash
+brew install blast
+pip3 install -r requirements.txt
+```
 ---
 
 ## How to Run
 
 1. Launch the app:
+Windows:
 ```bash
 python main.py
+```
+Linux:
+```bash
+python3 main.py
+```
+Mac:
+```bash
+python3 main.py
 ```
 
 2. In the **CLEANER** tab:
