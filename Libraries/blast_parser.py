@@ -4,7 +4,7 @@
 
 import xml.etree.ElementTree as ET
 
-def parse_blast_output(blast_file_path, seq_dict, output_txt_path):
+def parse_blast_output(blast_file_path, output_txt_path):
     tree = ET.parse(blast_file_path)
     root = tree.getroot()
 

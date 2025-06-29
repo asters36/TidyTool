@@ -85,7 +85,7 @@ class BlastAlignmentViewer(QWidget):
 
         all_alignments = [aln for _, alns in sorted_alignments for aln in alns]
         query_len = max((aln["query_len"] for aln in all_alignments), default=100)
-        tick_step = 10
+        tick_step = 50
         ax.set_xticks(range(0, query_len + tick_step, tick_step))
         ax.set_xticklabels(range(0, query_len + tick_step, tick_step), fontsize=8)
 

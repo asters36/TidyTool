@@ -81,7 +81,13 @@ def fetch_advanced_filtered_sequences(
     check_alength=False,
     min_alength=0,
     max_alength=1000000,
-    db_path="sequences.db",
+    check_identities=False,
+    min_identities=0,
+    max_identities=1000000,
+    check_positives=False,
+    min_positives=0,
+    max_positives=1000000,
+    db_path="cleaned.db",
     progress_callback=None
 ):
     import sqlite3
@@ -119,7 +125,7 @@ def fetch_advanced_filtered_sequences(
     c.execute(query, params)
     rows = c.fetchall()
 
-    if not seq_terms and not check_atg and not check_score and not check_eval and not check_alength:
+    if not seq_terms and not check_atg and not check_score and not check_eval and not check_alength and not check_identities and not check_positives:
         if progress_callback:
             progress_callback(100)
         return rows
@@ -170,6 +176,16 @@ def fetch_advanced_filtered_sequences(
         if check_alength:
             al_match = re.search(r"Alignment Length: (\d+)", header)
             if not al_match or not (min_alength <= int(al_match.group(1)) <= max_alength):
+                continue
+                
+        if check_identities:
+            id_match = re.search(r"Identities: (\d+)", header)
+            if not id_match or not (min_identities <= int(id_match.group(1)) <= max_identities):
+                continue
+                
+        if check_positives:
+            pos_match = re.search(r"Positives: (\d+)", header)
+            if not pos_match or not (min_positives <= int(pos_match.group(1)) <= max_positives):
                 continue
 
         result.append((header, sequence))
