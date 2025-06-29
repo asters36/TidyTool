@@ -87,7 +87,7 @@ python3 main.py
 
 ```
 .
-├── Libraries
+├── libraries
 ├	├── blast_parser.py         # BLAST XML parsing
 ├	├── blast_utils.py          # BLAST execution
 ├	├── blast_view.py           # BLAST plot view
@@ -98,17 +98,29 @@ python3 main.py
 ├	├── thread_utils.py         # background threads
 ├── BLAST
 ├	├── blastn.exe
+├	├── blastn
 ├	├── blastp.exe
+├	├── blastp
 ├	├── blastx.exe
+├	├── blastx
+├	├── tblastx.exe
+├	├── tblastx
+├	├── tblastn.exe
+├	├── tblastn
 ├	├── makeblastdb.exe
+├	├── makeblastdb
+├	├── blast_formatter.exe
+├	├── blast_formatter
 ├	├── ncbi-vdb-md.dll
 ├	├── nghttp2.dll
-├── BAZA
+├── database
 ├	├── database_here.txt
-├── Resources
+├── resources
 ├	├── tidytool.png
 ├── main.py
 ├── requirements.txt
+├── LICENCE
+├── NCBI_LICENCE
 └── README.md
 ```
 
@@ -124,8 +136,8 @@ We recommend UniProt, Ensembl, or NCBI RefSeq for testing.
 ## Authors
 
 - Aleksandra Liszka
-- Artur Stołowski
 - Aleksandra Marcisz
+- Artur Stołowski
 
 ---
 
