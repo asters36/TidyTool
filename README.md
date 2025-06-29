@@ -57,6 +57,7 @@ pip3 install -r requirements.txt
 ## How to Run
 
 1. Launch the app:
+
 Windows:
 ```bash
 python main.py
