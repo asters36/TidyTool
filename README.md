@@ -35,7 +35,7 @@
   - E-value
   - Alignment Length
   - Identity
-  - Similarity — switchable by button
+  - Similarity
 - Export selected sequences to a FASTA file
 - Right-click on a sequence → see full FASTA in a copyable popup
 
@@ -80,15 +80,29 @@ Mac:
 python3 main.py
 ```
 
-2. In the **CLEANER** tab:
-   - Click **Load File** and select `.fasta` files,
-   - Use **Clean** to remove duplicates, or **Filter** to search,
-   - Select sequences from the list and export/save them.
+2. In the **BLAST** tab:
+   - Choose a FASTA file to create BLAST database (Protein or Nucleotide),
+   - Paste query sequences in Query box,
+   - Run suitable BLAST search (BLASTP, BLASTN, BLASTX, TBLAXTN, TBLASTN),
+   - Click on **Show Alignment** to open full BLAST result,
+   - Select query in Query List and click on **View** to open Alignment coverage plot,
+   - Click on **Save sequences** to create FASTA file (contains headers combined with BLAST data and belonging sequences).
+3. In the **Cleaner** tab:
+   - Click **Choose FASTA File** and select `.fasta` files,
+   - You can preview the files you selected by clicking the **Show Files** button,
+   - Select the method for removing duplicates:
+     - Names (removes sequences with the same headers),
+     - Sequences (removes identical sequences),
+     - None selected (does not remove duplicates),
+   - Click **Clean/Analyse** to start analyzing the selected files,
+   - The headers will appear in the **Genes** window,
+   If a file containing integrated BLAST information is loaded, the Score and E-value histograms will be generated automatically.
+   - You can choose which histogram to display in each of the three panels by clicking the corresponding buttons,
+   - You can choose which filter to apply by clicking the corresponding checkbox next to its name,
+   - After entering the filter parameters, click the **Filter** button to display only the sequences that match the selected filters,
+   - Selected genes can be highlighted in the **Genes** list and moved to the **Selected names** list using the **ADD** button,
+   - By clicking the **Save FASTA** button, you save the genes from the **Selected names** list as a new FASTA file.
 
-3. In the **BLAST** tab:
-   - Choose a BLAST database,
-   - Run BLAST search with selected sequences,
-   - Open and visualize the results.
 
 ---
 
