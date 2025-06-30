@@ -50,25 +50,26 @@
 
 
 **Windows:**
-- Download Python installer:
-https://www.python.org/downloads/windows/
-Choose Python 3.12.x and download 64-bit version.
+- Python version:
+  - Download Python installer:
+    https://www.python.org/downloads/windows/
+    Choose Python 3.12.x and download 64-bit version.
 
-- Run installer
-SELECT "Add Python 3.12 to PATH" (very important).
-- Click "Install Now"
-- Download TidyTool.zip from Releases
-- Extract to desired folder
-- Open TidyTool folder
-- Press the right mouse button and select "Open in Terminal"
-- Paste commands:
-```bash
-pip install -r requirements.txt
-```
-- After installation type:
-```bash
-python main.py
-```
+  - Run installer
+    SELECT "Add Python 3.12 to PATH" (very important).
+  - Click "Install Now"
+  - Download TidyTool.zip from Releases
+  - Extract to desired folder
+  - Open TidyTool folder
+  - Press the right mouse button and select "Open in Terminal"
+  - Paste commands:
+  ```bash
+  pip install -r requirements.txt
+  ```
+  - After installation type:
+  ```bash
+  python main.py
+  ```
 
 
 **Linux:**
