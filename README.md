@@ -75,8 +75,23 @@ Linux:
 sudo apt install python3-pyqt6 python3-matplotlib
 ```
 Mac:
+- Download installer:
+https://www.python.org/downloads/macos/
+Choose Python 3.12.x and download 64-bit version:
+"macOS 64-bit universal2 installer"
+- Run installer
+- Click "Install Now"
+- Open TidyTool folder
+- Run Terminal (Command (⌘) + Space)
+- Navigate to downloaded TidyTool folder
+(eg./Users/username/Downloads/TidyTool)
+- Paste command:
 ```bash
 pip3 install -r requirements.txt
+```
+- Run application:
+```bash
+python3 main.py
 ```
 ---
 
