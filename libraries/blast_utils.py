@@ -555,7 +555,9 @@ def run_tblastx(widget, input_textbox, output_textbox, db_label):
 
 def save_sequences_from_blast(widget):
     try:
-        
+        from PyQt6.QtWidgets import QFileDialog, QMessageBox
+
+        # Krok 1: Wczytaj sekwencje FASTA jako dict {ID: sequence}
         seq_dict = {}
         with open("merged_database.fasta", "r", encoding="utf-8") as f:
             content = f.read().split(">")
@@ -565,31 +567,29 @@ def save_sequences_from_blast(widget):
                 lines = entry.strip().split("\n")
                 header = lines[0]
                 sequence = "".join(lines[1:])
-                seq_dict[header.strip()] = sequence.strip()
+                seq_id = header.split()[0].strip()  # np. AT1G01010.1
+                seq_dict[seq_id] = sequence.strip()
 
-      
-        selected_ids = []
+        # Krok 2: Wczytaj ID + pełny wiersz z BLAST
+        selected_entries = []  # lista par (id, linia z blast)
         with open("blast_out.txt", "r", encoding="utf-8") as f:
-            lines = f.readlines()
-            for line in lines:
+            for line in f:
                 if line.startswith("Query:") or line.startswith("BLAST Results:") or not line.strip():
                     continue
                 identifier = line.split()[0].strip()
-                selected_ids.append(line.strip())
+                selected_entries.append((identifier, line.strip()))
 
-       
+        # Krok 3: Zapisz sekwencje z nagłówkiem z BLAST
         output_path, _ = QFileDialog.getSaveFileName(widget, "Save FASTA File", "", "FASTA Files (*.fasta *.fa);;All Files (*)")
         if not output_path:
             return
 
         with open(output_path, "w", encoding="utf-8") as f:
-            for line in selected_ids:
-                name = line.split()[0]
-                header = ">" + line
-                sequence = seq_dict.get(name)
+            for seq_id, blast_line in selected_entries:
+                sequence = seq_dict.get(seq_id)
                 if sequence:
-                    f.write(header + "\n")
-                    f.write(sequence + "\n")
+                    f.write(f">{blast_line}\n")
+                    f.write(f"{sequence}\n")
 
         QMessageBox.information(widget, "Saved", "Sequences saved to FASTA file.")
 
