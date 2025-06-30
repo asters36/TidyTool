@@ -50,7 +50,7 @@
 
 
 **Windows:**
-- Python version:
+**- Python version:**
   - Download Python installer:
     https://www.python.org/downloads/windows/
     Choose Python 3.12.x and download 64-bit version.
@@ -70,7 +70,8 @@
   ```bash
   python main.py
   ```
-
+**- Exe version:**
+  -  Download TidyTOOL Windows.zip from
 
 **Linux:**
 - Download TidyTool.zip from Releases
