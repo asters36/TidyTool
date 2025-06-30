@@ -2,6 +2,7 @@
 # Copyright (c) 2025 Aleksandra Liszka, Aleksandra Marcisz, Artur Stołowski 
 # Licensed under the MIT License
 
+###################### LENGTH HISTOGRAM ##############################
 def draw_length_histogram(chart_widget, lengths, bin_count=5):
     if not lengths or len(lengths) < 2:
         return
@@ -46,7 +47,7 @@ def draw_length_histogram(chart_widget, lengths, bin_count=5):
         parent.length_bins = bins
         parent.length_bar_patches = list(bar_container.patches)
 
-
+###################### SCORE HISTOGRAM ##############################
 def draw_bitscore_histogram(chart_widget, headers):
     import re
 
@@ -109,7 +110,7 @@ def draw_bitscore_histogram(chart_widget, headers):
     fig.tight_layout()
     chart_widget.canvas.draw()
     
-    
+###################### EVALUE HISTOGRAM ##############################   
 def draw_evalue_histogram(chart_widget, headers):
     import re
 
@@ -171,7 +172,7 @@ def draw_evalue_histogram(chart_widget, headers):
     chart_widget.canvas.draw()
     
     
-    
+###################### ALIGNMENT HISTOGRAM ##############################    
 def draw_alength_histogram(chart_widget, lengths, bin_count=5):
     if len(lengths) < 2:
         chart_widget.figure.clear()
@@ -225,7 +226,7 @@ def draw_alength_histogram(chart_widget, lengths, bin_count=5):
         parent.length_bar_patches = list(bar_container.patches)
         
         
-        
+###################### IDENTITY HISTOGRAM ##############################        
 def draw_identities_histogram(chart_widget, headers):
     import re
 
@@ -289,7 +290,7 @@ def draw_identities_histogram(chart_widget, headers):
     chart_widget.canvas.draw()
     
     
-
+###################### SIMILARITY HISTOGRAM ##############################
 def draw_positives_histogram(chart_widget, headers):
     import re
 

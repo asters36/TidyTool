@@ -142,6 +142,7 @@ def choose_database_n(widget, label_to_update):
         filenames = [os.path.basename(p) for p in file_paths]
         label_to_update.setText("+ ".join(filenames))
         QMessageBox.information(widget, "Success", f"Database created.")
+        widget.label_database_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
         widget.open_blast_button.setEnabled(True)
         widget.blast_button.setEnabled(True)
         widget.blastn_button.setEnabled(True)

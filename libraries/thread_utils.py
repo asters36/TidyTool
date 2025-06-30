@@ -20,10 +20,10 @@ class DeleteDuplicatesWorker(QThread):
         import time
         import sqlite3
         import gc
-        
-        seen = {}
-        id_map = {}
-        removed = []
+
+        seen = set()
+        buffer_duplicates = []
+        buffer_size = 1000
 
         start_time = time.time()
         self.progress_text.emit("Connecting to database...")
@@ -32,59 +32,64 @@ class DeleteDuplicatesWorker(QThread):
             conn = sqlite3.connect(self.db_path)
             c = conn.cursor()
 
-            #Count records
             c.execute("SELECT COUNT(*) FROM sequences")
             total = c.fetchone()[0]
             self.progress_text.emit(f"Filtering {total} sequences...")
 
-            query = "SELECT id, header, sequence FROM sequences"
-            rows = c.execute(query)
+            rows = c.execute("SELECT header, sequence FROM sequences")
 
-            for i, (row_id, header, sequence) in enumerate(rows):
+            clean_conn = sqlite3.connect("cleaned.db")
+            clean_c = clean_conn.cursor()
+            clean_c.execute("DROP TABLE IF EXISTS sequences")
+            clean_c.execute("CREATE TABLE sequences (id INTEGER PRIMARY KEY AUTOINCREMENT, header TEXT, sequence TEXT)")
+
+            dup_conn = sqlite3.connect("duplicates.db")
+            dup_c = dup_conn.cursor()
+            dup_c.execute("DROP TABLE IF EXISTS sequences")
+            dup_c.execute("CREATE TABLE sequences (header TEXT, sequence TEXT)")
+
+            for i, (header, sequence) in enumerate(rows):
+                cleaned_header = header
+                if self.check_name:
+                    if "[Length" in header:
+                        cleaned_header = header.split("[Length")[0].strip()
+
                 if self.check_name and self.check_sequence:
-                    key = header + sequence
+                    key = cleaned_header + sequence
                 elif self.check_name:
-                    key = header
+                    key = cleaned_header
                 elif self.check_sequence:
                     key = sequence
                 else:
-                    key = header + sequence
+                    key = cleaned_header + sequence
 
                 if key not in seen:
-                    seen[key] = row_id
-                    id_map[row_id] = (row_id, header, sequence)
+                    seen.add(key)
+                    clean_c.execute("INSERT INTO sequences (header, sequence) VALUES (?, ?)", (header, sequence))
                 else:
-                    removed.append((header, sequence))
+                    buffer_duplicates.append((header, sequence))
+
+                    if len(buffer_duplicates) >= buffer_size:
+                        dup_c.executemany(
+                            "INSERT INTO sequences (header, sequence) VALUES (?, ?)",
+                            buffer_duplicates
+                        )
+                        buffer_duplicates.clear()
 
                 if i % max(1, total // 100) == 0:
                     self.progress_percent.emit(int((i + 1) / total * 100))
 
-            conn.close()
-            
-            # Save duplicates
-            self.progress_text.emit("Saving duplicates...")
-            with sqlite3.connect("duplicates.db") as dup_conn:
-                dup_c = dup_conn.cursor()
-                dup_c.execute("DROP TABLE IF EXISTS sequences")
-                dup_c.execute("CREATE TABLE sequences (header TEXT, sequence TEXT)")
-                if removed:
-                    dup_c.executemany("INSERT INTO sequences (header, sequence) VALUES (?, ?)", removed)
-                dup_conn.commit()
-
-            del removed
-            gc.collect()
-
-            # Save clean database
-            self.progress_text.emit("Saving cleaned database...")
-            with sqlite3.connect("cleaned.db") as clean_conn:
-                clean_c = clean_conn.cursor()
-                clean_c.execute("DROP TABLE IF EXISTS sequences")
-                clean_c.execute("CREATE TABLE sequences (header TEXT, sequence TEXT)")
-                clean_c.executemany(
+            if buffer_duplicates:
+                dup_c.executemany(
                     "INSERT INTO sequences (header, sequence) VALUES (?, ?)",
-                    [(h, s) for _, (_, h, s) in id_map.items()]
+                    buffer_duplicates
                 )
-                clean_conn.commit()
+
+            clean_conn.commit()
+            dup_conn.commit()
+            clean_conn.close()
+            dup_conn.close()
+            conn.close()
 
             gc.collect()
 
@@ -94,6 +99,6 @@ class DeleteDuplicatesWorker(QThread):
             self.finished.emit([], total, len(seen))
 
         except Exception as e:
-            print("Błąd w run():", e)
-            self.progress_text.emit(f"Błąd: {e}")
+            print("Error in run():", e)
+            self.progress_text.emit(f"Error: {e}")
             self.finished.emit([], 0, 0)
