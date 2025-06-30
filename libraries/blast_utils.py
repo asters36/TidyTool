@@ -73,7 +73,7 @@ def choose_database(widget, label_to_update):
         ], check=True)
 
         filenames = [os.path.basename(p) for p in file_paths]
-        label_to_update.setText("+ ".join(filenames))
+        label_to_update.setText("+\n ".join(filenames))
         QMessageBox.information(widget, "Success", f"Database created.")
         widget.open_blast_button.setEnabled(True)
         widget.blast_button.setEnabled(True)

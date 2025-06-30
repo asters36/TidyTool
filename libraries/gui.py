@@ -204,6 +204,7 @@ class MainWindow(QMainWindow):
         self.length_checkbox_obj.setEnabled(False)
         #------------------
         length_row = QHBoxLayout()
+        
         self.len_box_low = QSpinBox()
         self.len_box_low.setMaximum(900000)
         self.len_box_low.setFixedWidth(70)
@@ -211,12 +212,14 @@ class MainWindow(QMainWindow):
         self.len_box_hi.setMaximum(900000)
         self.len_box_hi.setFixedWidth(70)
         length_row.addWidget(self.length_checkbox_obj)
+        length_row.addStretch()
         length_row.addWidget(QLabel("MIN:"))
         length_row.addWidget(self.len_box_low)
         length_row.addWidget(QLabel("MAX:"))
         length_row.addWidget(self.len_box_hi)
         self.label_min = QLabel("MIN")
         self.label_max = QLabel("MAX")
+        
         #------------------
         
         
@@ -231,6 +234,7 @@ class MainWindow(QMainWindow):
         self.score_box_hi.setMaximum(900000)
         self.score_box_hi.setFixedWidth(70)
         score_row.addWidget(self.score_checkbox_obj)
+        score_row.addStretch()
         score_row.addWidget(QLabel("MIN:"))
         score_row.addWidget(self.score_box_low)
         score_row.addWidget(QLabel("MAX:"))
@@ -248,6 +252,7 @@ class MainWindow(QMainWindow):
         self.eval_box_hi.setMaximum(900000)
         self.eval_box_hi.setFixedWidth(70)
         eval_row.addWidget(self.eval_checkbox_obj)
+        eval_row.addStretch()
         eval_row.addWidget(QLabel("MIN:"))
         eval_row.addWidget(self.eval_box_low)
         eval_row.addWidget(QLabel("MAX:"))
@@ -265,6 +270,7 @@ class MainWindow(QMainWindow):
         self.alength_box_hi.setMaximum(900000)
         self.alength_box_hi.setFixedWidth(70)
         alength_row.addWidget(self.alength_checkbox_obj)
+        alength_row.addStretch()
         alength_row.addWidget(QLabel("MIN:"))
         alength_row.addWidget(self.alength_box_low)
         alength_row.addWidget(QLabel("MAX:"))
@@ -282,6 +288,7 @@ class MainWindow(QMainWindow):
         self.identities_box_hi.setMaximum(900000)
         self.identities_box_hi.setFixedWidth(70)
         identities_row.addWidget(self.identities_checkbox_obj)
+        identities_row.addStretch()
         identities_row.addWidget(QLabel("MIN:"))
         identities_row.addWidget(self.identities_box_low)
         identities_row.addWidget(QLabel("MAX:"))
@@ -300,6 +307,7 @@ class MainWindow(QMainWindow):
         self.positives_box_hi.setMaximum(900000)
         self.positives_box_hi.setFixedWidth(70)
         positives_row.addWidget(self.positives_checkbox_obj)
+        positives_row.addStretch()
         positives_row.addWidget(QLabel("MIN:"))
         positives_row.addWidget(self.positives_box_low)
         positives_row.addWidget(QLabel("MAX:"))
@@ -321,7 +329,7 @@ class MainWindow(QMainWindow):
         #------------------
         self.amount2_label = QLabel("Records: 0")
         #------------------
-        self.label_copyright = QLabel("© Liszka, Stołowski, Marcisz")
+        self.label_copyright = QLabel("© Liszka, Marcisz, Stołowski")
         #------------------
         self.analyze_button = QPushButton("Filter")
         self.analyze_button.clicked.connect(self.filter_all)
@@ -503,43 +511,43 @@ class MainWindow(QMainWindow):
         histograms_buttons3 = QHBoxLayout()
         histograms_buttons3.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        self.Length_histogram_button = QPushButton("LENGTH")
+        self.Length_histogram_button = QPushButton("Length")
         self.Length_histogram_button.setFixedSize(100, 30)
         self.Length_histogram_button.clicked.connect(lambda: draw_length_histogram(self.chart3, self.hist_lengths))
-        self.Length_histogram_button2 = QPushButton("LENGTH")
+        self.Length_histogram_button2 = QPushButton("Length")
         self.Length_histogram_button2.setFixedSize(100, 30)
         self.Length_histogram_button2.clicked.connect(lambda: draw_length_histogram(self.chart2, self.hist_lengths))
-        self.Length_histogram_button3 = QPushButton("LENGTH")
+        self.Length_histogram_button3 = QPushButton("Length")
         self.Length_histogram_button3.setFixedSize(100, 30)
         self.Length_histogram_button3.clicked.connect(lambda: draw_length_histogram(self.chart1, self.hist_lengths))
         
-        self.Score_histogram_button = QPushButton("SCORE")
+        self.Score_histogram_button = QPushButton("Score")
         self.Score_histogram_button.setFixedSize(100, 30)
         self.Score_histogram_button.clicked.connect(lambda: draw_bitscore_histogram(self.chart3, [self.genes_list.item(i).text() for i in range(self.genes_list.count())]))
-        self.Score_histogram_button2 = QPushButton("SCORE")
+        self.Score_histogram_button2 = QPushButton("Score")
         self.Score_histogram_button2.setFixedSize(100, 30)
         self.Score_histogram_button2.clicked.connect(lambda: draw_bitscore_histogram(self.chart2, [self.genes_list.item(i).text() for i in range(self.genes_list.count())]))
-        self.Score_histogram_button3 = QPushButton("SCORE")
+        self.Score_histogram_button3 = QPushButton("Score")
         self.Score_histogram_button3.setFixedSize(100, 30)
         self.Score_histogram_button3.clicked.connect(lambda: draw_bitscore_histogram(self.chart1, [self.genes_list.item(i).text() for i in range(self.genes_list.count())]))
         
-        self.Eval_histogram_button = QPushButton("E-VALUE")
+        self.Eval_histogram_button = QPushButton("E-value")
         self.Eval_histogram_button.setFixedSize(100, 30)
         self.Eval_histogram_button.clicked.connect(lambda: draw_evalue_histogram(self.chart3, [self.genes_list.item(i).text() for i in range(self.genes_list.count())]))
-        self.Eval_histogram_button2 = QPushButton("E-VALUE")
+        self.Eval_histogram_button2 = QPushButton("E-value")
         self.Eval_histogram_button2.setFixedSize(100, 30)
         self.Eval_histogram_button2.clicked.connect(lambda: draw_evalue_histogram(self.chart2, [self.genes_list.item(i).text() for i in range(self.genes_list.count())]))
-        self.Eval_histogram_button3 = QPushButton("E-VALUE")
+        self.Eval_histogram_button3 = QPushButton("E-value")
         self.Eval_histogram_button3.setFixedSize(100, 30)
         self.Eval_histogram_button3.clicked.connect(lambda: draw_evalue_histogram(self.chart1, [self.genes_list.item(i).text() for i in range(self.genes_list.count())]))
         
-        self.ALength_histogram_button = QPushButton("AL. LENGTH")
+        self.ALength_histogram_button = QPushButton("Al. Length")
         self.ALength_histogram_button.setFixedSize(100, 30)
         self.ALength_histogram_button.clicked.connect(lambda: draw_alength_histogram(self.chart3, self.al_lengths))
-        self.ALength_histogram_button2 = QPushButton("AL. LENGTH")
+        self.ALength_histogram_button2 = QPushButton("Al. Length")
         self.ALength_histogram_button2.setFixedSize(100, 30)
         self.ALength_histogram_button2.clicked.connect(lambda: draw_alength_histogram(self.chart2, self.al_lengths))
-        self.ALength_histogram_button3 = QPushButton("AL. LENGTH")
+        self.ALength_histogram_button3 = QPushButton("Al. Length")
         self.ALength_histogram_button3.setFixedSize(100, 30)
         self.ALength_histogram_button3.clicked.connect(lambda: draw_alength_histogram(self.chart1, self.al_lengths))
         
@@ -1345,7 +1353,7 @@ class MainWindow(QMainWindow):
         
     def info1(self):
         from PyQt6.QtWidgets import QMessageBox
-        QMessageBox.information(self, "INFO", "Paste one or more names (Separate by [ENTER], parts of single name separate by [ , ])")
+        QMessageBox.information(self, "INFO", "To extract multiple queries, paste name fragments separated by ENTER (one per line). To search for multiple fragments within an individual name, paste the queries separated by commas.")
         
     ##################################################### BLAST UI ######################################################
     def setup_blast_tab(self):
@@ -1379,22 +1387,25 @@ class MainWindow(QMainWindow):
         self.load_base_button.setFixedSize(200, 40)
         self.load_base_button.clicked.connect(lambda: load_prev_database(self,self.label_database_name))
         
-        self.open_blast_button = QPushButton("Import BLAST Result")
+        self.open_blast_button = QPushButton("Import BLAST Result (XML)")
         self.open_blast_button.setFixedSize(200, 40)
         self.open_blast_button.clicked.connect(lambda: open_sequence_from_xml(self,self.rich_text_result))
         self.open_blast_button.setEnabled(False)
         
         database_layout = QHBoxLayout()
         database_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.base_select_button = QPushButton("Create Protein Database")
+        self.base_select_button = QPushButton("Load Protein Database")
         self.base_select_button.setFixedSize(200, 40)
         self.base_select_button.clicked.connect(lambda: choose_database(self, self.label_database_name))
-        self.base2_select_button = QPushButton("Create Gene Database")
+        self.base2_select_button = QPushButton("Load Gene Database")
         self.base2_select_button.setFixedSize(200, 40)
         self.base2_select_button.clicked.connect(lambda: choose_database_n(self, self.label_database_name))
-        self.label_database_file = QLabel("Database File:")
+        self.label_database_file = QLabel("Database Files:")
         self.label_database_file.setFont(font_bold2)
-        self.label_database_name = QLabel("none")
+        self.label_database_name = QTextEdit("none")
+        self.label_database_name.setReadOnly(True)
+        self.label_database_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label_database_name.setFixedSize(400,60)
 
         self.label_sequences = QLabel("Query sequences")
         self.label_sequences.setFont(font_bold2)
@@ -1494,7 +1505,7 @@ class MainWindow(QMainWindow):
         
         self.query_list_widget = QListWidget()
         self.query_list_widget.setMinimumHeight(150)
-        self.view_alignment_button = QPushButton("VIEW")
+        self.view_alignment_button = QPushButton("View")
         self.view_alignment_button.setFixedSize(150, 40)
         self.view_alignment_button.clicked.connect(self.view_selected_alignment)
         right_layout.addWidget(QLabel("Query list"))
@@ -1502,7 +1513,7 @@ class MainWindow(QMainWindow):
         blast_info_layout = QHBoxLayout()
         blast_info_layout.addWidget(self.view_alignment_button)
         blast_info_layout.addStretch()
-        blast_info_layout.addWidget(QLabel("BLAST+ tools developed by the National Center for Biotechnology Information (NCBI)"))
+        blast_info_layout.addWidget(QLabel("BLAST+ tools are developed by the National Center for Biotechnology Information (NCBI)"))
         right_layout.addLayout(blast_info_layout)
         
         #---------------------------RIGHT---------------------------
