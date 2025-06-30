@@ -47,8 +47,7 @@
 - `PyQt6`
 - `matplotlib`
 - `sqlite3` (built into Python)
-  
-Install dependencies:
+
 
 **Windows:**
 - Download Python installer:
@@ -71,6 +70,7 @@ pip install -r requirements.txt
 python main.py
 ```
 
+
 **Linux:**
 - Download TidyTool.zip from Releases
 - Extract to desired folder
@@ -84,6 +84,7 @@ sudo apt install python3-pyqt6 python3-matplotlib
 ```bash
 python3 main.py
 ```
+
 
 **Mac:**
 - Download Python installer:
@@ -108,7 +109,8 @@ python3 main.py
 ```
 ---
 
-## How to Run
+
+## How to Use
 
 1. In the **BLAST** tab:
    - Choose a FASTA file to create BLAST database (Protein or Nucleotide),
