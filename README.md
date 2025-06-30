@@ -43,16 +43,33 @@
 
 ## Requirements
 
-- Python `>=3.7`
+- Python `>=3.12`
 - `PyQt6`
 - `matplotlib`
 - `sqlite3` (built into Python)
+  
+Install dependencies:
 
 Windows:
-Install dependencies:
+- Download installer:
+https://www.python.org/downloads/windows/
+Choose Python 3.12.x and download 64-bit version.
+
+- Run installer
+SELECT "Add Python 3.12 to PATH" (very important).
+- Click "Install Now"
+
+- Open TidyTool folder
+- Press the right mouse button and select "Open in Terminal"
+- Paste commands:
 ```bash
 pip install -r requirements.txt
 ```
+- After installation type:
+```bash
+python main.py
+```
+
 Linux:
 ```bash
 sudo apt install python3-pyqt6 python3-matplotlib
