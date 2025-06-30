@@ -71,7 +71,13 @@
   python main.py
   ```
 **- Exe version:**
-  -  Download TidyTOOL Windows.zip from
+  -  Download TidyTOOL Windows.zip from Releases
+  -  Extract do desired folder
+  -  Open TidyTool folder
+  -  Run TidyTool.exe
+
+**Important Notice:**
+This application might be falsely detected as a virus by some antivirus software. This is a false positive, which is a common issue for apps generated from Python using tools like auto-py-to-exe or PyInstaller.
 
 **Linux:**
 - Download TidyTool.zip from Releases
