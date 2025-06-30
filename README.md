@@ -49,7 +49,7 @@
 - `sqlite3` (built into Python)
 
 
-**Windows:**
+###**Windows:**
 **- Python version:**
   - Download Python installer:
     https://www.python.org/downloads/windows/
@@ -79,7 +79,8 @@
 **Important Notice:**
 This application might be falsely detected as a virus by some antivirus software. This is a false positive, which is a common issue for apps generated from Python using tools like auto-py-to-exe or PyInstaller.
 
-**Linux:**
+
+###**Linux:**
 - Download TidyTool.zip from Releases
 - Extract to desired folder
 - Open TidyTool folder
@@ -94,7 +95,7 @@ python3 main.py
 ```
 
 
-**Mac:**
+###**Mac:**
 - Download Python installer:
 https://www.python.org/downloads/macos/
 Choose Python 3.12.x and download 64-bit version:
