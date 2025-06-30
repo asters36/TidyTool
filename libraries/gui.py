@@ -48,7 +48,7 @@ from blast_utils import load_prev_database, choose_database, choose_database_n, 
 from blast_view import parse_blast_xml, BlastAlignmentViewer
 from filter_worker import FilterWorker
 from filter_thread import start_parallel_filtering
-
+from gene_loader import GeneLoaderWorker
 
 class MainWindow(QMainWindow):
 
@@ -128,7 +128,7 @@ class MainWindow(QMainWindow):
         inner_left_widget = QWidget()
         left_layout = QVBoxLayout(inner_left_widget)
         #------------------
-        self.label_analyse = QLabel("Analyze FASTA")
+        self.label_analyse = QLabel("Analyse FASTA")
         font_bold = self.label_analyse.font()
         font_bold.setBold(True)
         font_bold.setPointSize(14)
@@ -173,12 +173,12 @@ class MainWindow(QMainWindow):
         checkbox_row.addWidget(self.sequence_box)
         checkbox_row.addWidget(self.show_removed_button)
         #------------------
-        self.clean_button = QPushButton("Clean/Analyze")
+        self.clean_button = QPushButton("Clean/Analyse")
         self.clean_button.setFixedSize(150, 40)
         self.clean_button.clicked.connect(self.clean_file)
         self.clean_button.setEnabled(False)
         #------------------
-        self.label_filter = QLabel("Analyze Parameters")
+        self.label_filter = QLabel("Analyse Parameters")
         self.label_filter.setFont(font_bold2)
         #------------------  
         self.protein_checkbox_obj = QCheckBox("Protein")
@@ -641,7 +641,9 @@ class MainWindow(QMainWindow):
 
         if not file_names:
             return
-
+        
+        start = time.time()
+        
         self.loaded_files = file_names
         self.label_status_text.setText("Files selected")
         self.clean_button.setEnabled(True)
@@ -684,6 +686,9 @@ class MainWindow(QMainWindow):
         self.min_seq_len = float("inf")
         self.max_seq_len = 0
         
+        end = time.time()
+        print(f"Load finished in {end - start:.2f} seconds")
+        
         
     def show_loaded_files(self):
         from PyQt6.QtWidgets import QMessageBox
@@ -694,7 +699,15 @@ class MainWindow(QMainWindow):
             msg.exec()
         else:
             QMessageBox.information(self, "Info", "No files loaded.")
-            
+    
+    def start_loading_genes(self, total_before, total_after):
+        self.progress_dialog.setLabelText("Loading genes...")
+        self.genes_list.clear()
+
+        self.worker = GeneLoaderWorker()
+        self.worker.finished.connect(lambda headers, lengths, al_lengths, stats:
+            self.on_genes_loaded(headers, lengths, al_lengths, stats, total_before, total_after))
+        self.worker.start()    
             
     ############### RUN CLEANER IN OTHER THREAD #################
     def clean_file(self):
@@ -720,90 +733,22 @@ class MainWindow(QMainWindow):
 
     ########################## CLEANING END ############################
     def on_cleaning_finished(self, _unused, total_before, total_after):
-        import sqlite3
-        import re
+        import time
+        self.start_time = time.time()
+        self.start_loading_genes(total_before, total_after)
+    
 
-        self.progress_dialog.setLabelText("Loading genes...")
-        self.genes_list.clear()
-        self.hist_lengths = []
-        self.al_lengths = []
-        self.min_seq_len = float("inf")
-        self.max_seq_len = 0
+    def on_genes_loaded(self, headers, lengths, al_lengths, stats, total_before, total_after):
+        import time
 
-        try:
-            with sqlite3.connect("cleaned.db") as conn:
-                c = conn.cursor()
-                c.execute("SELECT header, sequence FROM sequences")
+        self.genes_list.setUpdatesEnabled(False)
+        self.genes_list.addItems(headers)
+        self.genes_list.setUpdatesEnabled(True)
 
-                scores = []
-                e_values = []
-                identities = []
-                positives = []
-                items_to_add = []
-
-                for header, sequence in c:
-                    seq_len = len(sequence)
-                    self.hist_lengths.append(seq_len)
-                    self.min_seq_len = min(self.min_seq_len, seq_len)
-                    self.max_seq_len = max(self.max_seq_len, seq_len)
-                    items_to_add.append(f"{header} [{seq_len}]")
-
-                    header_lower = header.lower()
-
-                    # Score
-                    if "score" in header_lower:
-                        try:
-                            match = re.search(r"score[:=]?\s*([\d.]+)", header_lower)
-                            if match:
-                                scores.append(int(match.group(1)))
-                        except:
-                            pass
-
-                    # E-Value
-                    if "e-value" in header_lower:
-                        try:
-                            match = re.search(r"e[- ]?value[:=]?\s*([\d.eE+-]+)", header_lower)
-                            if match:
-                                e_values.append(float(match.group(1)))
-                        except:
-                            pass
-
-                    # Alignment Length
-                    if "alignment length" in header_lower:
-                        try:
-                            match = re.search(r"alignment length[:=]?\s*(\d+)", header_lower)
-                            if match:
-                                self.al_lengths.append(int(match.group(1)))
-                        except:
-                            pass
-
-                    # Identities
-                    if "identities" in header_lower:
-                        try:
-                            match = re.search(r"identities[:=]?\s*(\d+)", header_lower)
-                            if match:
-                                identities.append(int(match.group(1)))
-                        except:
-                            pass
-
-                    # Positives
-                    if "positives" in header_lower:
-                        try:
-                            match = re.search(r"positives[:=]?\s*(\d+)", header_lower)
-                            if match:
-                                positives.append(int(match.group(1)))
-                        except:
-                            pass
-
-                self.genes_list.setUpdatesEnabled(False)
-                self.genes_list.setSortingEnabled(False)
-                self.genes_list.addItems(items_to_add)
-                self.genes_list.setSortingEnabled(True)
-                self.genes_list.setUpdatesEnabled(True)
-
-        except Exception as e:
-            print("Error reading cleaned.db:", e)
-            return
+        self.hist_lengths = lengths
+        self.al_lengths = al_lengths
+        self.min_seq_len = stats["min_len"]
+        self.max_seq_len = stats["max_len"]
 
         self.label_removed.setText(f"Removed {total_before - total_after} sequences")
         self.label_inout.setText(f"Input: {total_before} Output: {total_after}")
@@ -811,60 +756,7 @@ class MainWindow(QMainWindow):
         self.len_box_low.setValue(self.min_seq_len)
         self.len_box_hi.setValue(self.max_seq_len)
 
-        self.Length_histogram_button.setEnabled(True)
-        self.Length_histogram_button2.setEnabled(True)
-        self.Length_histogram_button3.setEnabled(True)
-
-        if scores:
-            self.score_checkbox_obj.setEnabled(True)
-            self.Score_histogram_button.setEnabled(True)
-            self.Score_histogram_button2.setEnabled(True)
-            self.Score_histogram_button3.setEnabled(True)
-            self.score_box_low.setValue(min(scores))
-            self.score_box_hi.setValue(max(scores))
-        else:
-            self.score_checkbox_obj.setEnabled(False)
-
-        if e_values:
-            self.eval_checkbox_obj.setEnabled(True)
-            self.Eval_histogram_button.setEnabled(True)
-            self.Eval_histogram_button2.setEnabled(True)
-            self.Eval_histogram_button3.setEnabled(True)
-            self.eval_box_low.setValue(min(e_values))
-            self.eval_box_hi.setValue(max(e_values))
-        else:
-            self.eval_checkbox_obj.setEnabled(False)
-
-        if self.al_lengths:
-            self.alength_checkbox_obj.setEnabled(True)
-            self.ALength_histogram_button.setEnabled(True)
-            self.ALength_histogram_button2.setEnabled(True)
-            self.ALength_histogram_button3.setEnabled(True)
-            self.alength_box_low.setValue(min(self.al_lengths))
-            self.alength_box_hi.setValue(max(self.al_lengths))
-        else:
-            self.alength_checkbox_obj.setEnabled(False)
-
-        if identities:
-            self.identities_checkbox_obj.setEnabled(True)
-            self.Identities_histogram_button.setEnabled(True)
-            self.Identities_histogram_button2.setEnabled(True)
-            self.Identities_histogram_button3.setEnabled(True)
-            self.identities_box_low.setValue(min(identities))
-            self.identities_box_hi.setValue(max(identities))
-        else:
-            self.identities_checkbox_obj.setEnabled(False)
-
-        if positives:
-            self.positives_checkbox_obj.setEnabled(True)
-            self.Positives_histogram_button.setEnabled(True)
-            self.Positives_histogram_button2.setEnabled(True)
-            self.Positives_histogram_button3.setEnabled(True)
-            self.positives_box_low.setValue(min(positives))
-            self.positives_box_hi.setValue(max(positives))
-        else:
-            self.positives_checkbox_obj.setEnabled(False)
-
+        # Enable filters
         self.analyze_button.setEnabled(True)
         self.length_checkbox_obj.setEnabled(True)
         self.protein_checkbox_obj.setEnabled(True)
@@ -878,13 +770,70 @@ class MainWindow(QMainWindow):
         self.show_removed_button.setEnabled(True)
         self.show_duplicates_button.setEnabled(True)
 
-        ##
-        draw_length_histogram(self.chart3, self.hist_lengths)
-        draw_bitscore_histogram(self.chart2, [self.genes_list.item(i).text() for i in range(self.genes_list.count())])
-        draw_evalue_histogram(self.chart1, [self.genes_list.item(i).text() for i in range(self.genes_list.count())])
+        # Histogram buttons
+        self.Length_histogram_button.setEnabled(True)
+        self.Length_histogram_button2.setEnabled(True)
+        self.Length_histogram_button3.setEnabled(True)
+
+        if stats["scores"]:
+            self.score_checkbox_obj.setEnabled(True)
+            self.Score_histogram_button.setEnabled(True)
+            self.Score_histogram_button2.setEnabled(True)
+            self.Score_histogram_button3.setEnabled(True)
+            self.score_box_low.setValue(min(stats["scores"]))
+            self.score_box_hi.setValue(max(stats["scores"]))
+        else:
+            self.score_checkbox_obj.setEnabled(False)
+
+        if stats["e_values"]:
+            self.eval_checkbox_obj.setEnabled(True)
+            self.Eval_histogram_button.setEnabled(True)
+            self.Eval_histogram_button2.setEnabled(True)
+            self.Eval_histogram_button3.setEnabled(True)
+            self.eval_box_low.setValue(min(stats["e_values"]))
+            self.eval_box_hi.setValue(max(stats["e_values"]))
+        else:
+            self.eval_checkbox_obj.setEnabled(False)
+
+        if al_lengths:
+            self.alength_checkbox_obj.setEnabled(True)
+            self.ALength_histogram_button.setEnabled(True)
+            self.ALength_histogram_button2.setEnabled(True)
+            self.ALength_histogram_button3.setEnabled(True)
+            self.alength_box_low.setValue(min(al_lengths))
+            self.alength_box_hi.setValue(max(al_lengths))
+        else:
+            self.alength_checkbox_obj.setEnabled(False)
+
+        if stats["identities"]:
+            self.identities_checkbox_obj.setEnabled(True)
+            self.Identities_histogram_button.setEnabled(True)
+            self.Identities_histogram_button2.setEnabled(True)
+            self.Identities_histogram_button3.setEnabled(True)
+            self.identities_box_low.setValue(min(stats["identities"]))
+            self.identities_box_hi.setValue(max(stats["identities"]))
+        else:
+            self.identities_checkbox_obj.setEnabled(False)
+
+        if stats["positives"]:
+            self.positives_checkbox_obj.setEnabled(True)
+            self.Positives_histogram_button.setEnabled(True)
+            self.Positives_histogram_button2.setEnabled(True)
+            self.Positives_histogram_button3.setEnabled(True)
+            self.positives_box_low.setValue(min(stats["positives"]))
+            self.positives_box_hi.setValue(max(stats["positives"]))
+        else:
+            self.positives_checkbox_obj.setEnabled(False)
+
+        # Rysuj histogramy
+        #draw_length_histogram(self.chart3, self.hist_lengths)
+        #draw_bitscore_histogram(self.chart2, headers)
+        #draw_evalue_histogram(self.chart1, headers)
 
         self.progress_dialog.close()
-        
+        print(f"Gene list loaded in {time.time() - self.start_time:.2f} s")
+
+    
     def show_removed_sequences(self):
         from PyQt6.QtWidgets import QDialog, QVBoxLayout, QListWidget, QPushButton
         import sqlite3
@@ -1034,6 +983,9 @@ class MainWindow(QMainWindow):
     from filter_thread import start_parallel_filtering
 
     def filter_all(self):
+        import time 
+        
+        start = time.time()
         name_terms = self.filter_textbox.toPlainText().splitlines()
         seq_terms = self.sequence_textbox.text().splitlines()
 
@@ -1084,6 +1036,8 @@ class MainWindow(QMainWindow):
             for header, sequence in results:
                 self.genes_list.addItem(f"{header} [{len(sequence)}]")
             self.amount_label.setText(f"Found: {len(results)} records")
+            end = time.time()
+            print(f"Filtered in {end - start:.2f} seconds")
 
         start_parallel_filtering(self, filter_args, on_done)
     

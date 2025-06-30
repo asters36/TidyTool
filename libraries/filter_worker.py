@@ -11,7 +11,7 @@ class FilterWorker(QObject):
 
     def __init__(self, rowid_range, filter_args):
         super().__init__()
-        self.rowid_range = rowid_range  # (start_id, end_id)
+        self.rowid_range = rowid_range 
         self.args = filter_args
 
     def run(self):
@@ -33,7 +33,7 @@ class FilterWorker(QObject):
             conn.close()
 
         except Exception as e:
-            print("Błąd w FilterWorker:", e)
+            print("FilterWorker error:", e)
 
         self.finished.emit(results)
 
