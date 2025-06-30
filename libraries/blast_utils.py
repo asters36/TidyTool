@@ -175,10 +175,10 @@ def run_blast(widget, input_textbox, output_textbox, db_label):
             QMessageBox.warning(widget, "Error", "No sequences provided.")
             return
 
-        db_name = db_label.text().strip()
-        if db_name.lower() == "none":
-            QMessageBox.warning(widget, "Error", "No database selected.")
-            return
+        #db_name = db_label.text().strip()
+       # if db_name.lower() == "none":
+          #  QMessageBox.warning(widget, "Error", "No database selected.")
+         #   return
 
         
         progress = QProgressDialog("Running BLAST, please wait...", None, 0, 0, widget)
@@ -253,10 +253,10 @@ def run_blastn(widget, input_textbox, output_textbox, db_label):
             QMessageBox.warning(widget, "Error", "No sequences provided.")
             return
 
-        db_name = db_label.text().strip()
-        if db_name.lower() == "none":
-            QMessageBox.warning(widget, "Error", "No database selected.")
-            return
+        #db_name = db_label.text().strip()
+        #if db_name.lower() == "none":
+            #QMessageBox.warning(widget, "Error", "No database selected.")
+            #return
 
         
         progress = QProgressDialog("Running BLAST, please wait...", None, 0, 0, widget)
@@ -331,10 +331,10 @@ def run_blastx(widget, input_textbox, output_textbox, db_label):
             QMessageBox.warning(widget, "Error", "No sequences provided.")
             return
 
-        db_name = db_label.text().strip()
-        if db_name.lower() == "none":
-            QMessageBox.warning(widget, "Error", "No database selected.")
-            return
+        #db_name = db_label.text().strip()
+        #if db_name.lower() == "none":
+        #    QMessageBox.warning(widget, "Error", "No database selected.")
+        #    return
 
         
         progress = QProgressDialog("Running BLAST, please wait...", None, 0, 0, widget)
@@ -409,10 +409,10 @@ def run_tblastn(widget, input_textbox, output_textbox, db_label):
             QMessageBox.warning(widget, "Error", "No sequences provided.")
             return
 
-        db_name = db_label.text().strip()
-        if db_name.lower() == "none":
-            QMessageBox.warning(widget, "Error", "No database selected.")
-            return
+       # db_name = db_label.text().strip()
+       # if db_name.lower() == "none":
+        #    QMessageBox.warning(widget, "Error", "No database selected.")
+       #     return
 
         
         progress = QProgressDialog("Running BLAST, please wait...", None, 0, 0, widget)
@@ -487,10 +487,10 @@ def run_tblastx(widget, input_textbox, output_textbox, db_label):
             QMessageBox.warning(widget, "Error", "No sequences provided.")
             return
 
-        db_name = db_label.text().strip()
-        if db_name.lower() == "none":
-            QMessageBox.warning(widget, "Error", "No database selected.")
-            return
+       # db_name = db_label.text().strip()
+       # if db_name.lower() == "none":
+       #     QMessageBox.warning(widget, "Error", "No database selected.")
+       #     return
 
         
         progress = QProgressDialog("Running BLAST, please wait...", None, 0, 0, widget)

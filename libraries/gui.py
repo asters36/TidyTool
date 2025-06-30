@@ -1404,8 +1404,8 @@ class MainWindow(QMainWindow):
         self.label_database_file.setFont(font_bold2)
         self.label_database_name = QTextEdit("none")
         self.label_database_name.setReadOnly(True)
-        self.label_database_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.label_database_name.setFixedSize(400,60)
+        self.label_database_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.label_sequences = QLabel("Query sequences")
         self.label_sequences.setFont(font_bold2)
