@@ -50,15 +50,16 @@
   
 Install dependencies:
 
-Windows:
-- Download installer:
+**Windows:**
+- Download Python installer:
 https://www.python.org/downloads/windows/
 Choose Python 3.12.x and download 64-bit version.
 
 - Run installer
 SELECT "Add Python 3.12 to PATH" (very important).
 - Click "Install Now"
-
+- Download TidyTool.zip from Releases
+- Extract to desired folder
 - Open TidyTool folder
 - Press the right mouse button and select "Open in Terminal"
 - Paste commands:
@@ -70,17 +71,29 @@ pip install -r requirements.txt
 python main.py
 ```
 
-Linux:
+**Linux:**
+- Download TidyTool.zip from Releases
+- Extract to desired folder
+- Open TidyTool folder
+- Right-click inside folder → "Open in Terminal"
+- Paste command:
 ```bash
 sudo apt install python3-pyqt6 python3-matplotlib
 ```
-Mac:
-- Download installer:
+- Run TidyTOOL by command:
+```bash
+python3 main.py
+```
+
+**Mac:**
+- Download Python installer:
 https://www.python.org/downloads/macos/
 Choose Python 3.12.x and download 64-bit version:
 "macOS 64-bit universal2 installer"
 - Run installer
 - Click "Install Now"
+- Download TidyTool.zip from Releases
+- Extract to desired folder
 - Open TidyTool folder
 - Run Terminal (Command (⌘) + Space)
 - Navigate to downloaded TidyTool folder
@@ -97,29 +110,14 @@ python3 main.py
 
 ## How to Run
 
-1. Launch the app:
-
-Windows:
-```bash
-python main.py
-```
-Linux:
-```bash
-python3 main.py
-```
-Mac:
-```bash
-python3 main.py
-```
-
-2. In the **BLAST** tab:
+1. In the **BLAST** tab:
    - Choose a FASTA file to create BLAST database (Protein or Nucleotide),
    - Paste query sequences in Query box,
    - Run suitable BLAST search (BLASTP, BLASTN, BLASTX, TBLAXTN, TBLASTN),
    - Click on **Show Alignment** to open full BLAST result,
    - Select query in Query List and click on **View** to open Alignment coverage plot,
    - Click on **Save sequences** to create FASTA file (contains headers combined with BLAST data and belonging sequences).
-3. In the **Cleaner** tab:
+2. In the **Cleaner** tab:
    - Click **Choose FASTA File** and select `.fasta` files,
    - You can preview the files you selected by clicking the **Show Files** button,
    - Select the method for removing duplicates:
