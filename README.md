@@ -1,6 +1,6 @@
-# TidyTool
+# BLASTnBRUSH
 
-**TidyTool** is a user-friendly, graphical application designed to facilitate working with sequence databases, especially for researchers without advanced bioinformatics skills. It provides a powerful and intuitive **PyQt6-based GUI** for:
+**BLASTnBRUSH** is a user-friendly, graphical application designed to facilitate working with sequence databases, especially for researchers without advanced bioinformatics skills. It provides a powerful and intuitive **PyQt6-based GUI** for:
 
 - Removing duplicate sequences,
 - Filtering sequences by name, length, or similarity,
