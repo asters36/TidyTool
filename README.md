@@ -58,42 +58,28 @@
   - Run installer
     SELECT "Add Python 3.12 to PATH" (very important).
   - Click "Install Now"
-  - Download TidyTool.zip from Releases
+  - Download BLASTnBRUSH.zip from Releases
   - Extract to desired folder
-  - Open TidyTool folder
-  - Press the right mouse button and select "Open in Terminal"
-  - Paste commands:
-  ```bash
-  pip install -r requirements.txt
-  ```
-  - After installation type:
-  ```bash
-  python main.py
-  ```
+  - Open BLASTnBRUSH folder
+  - Run "Install Python libraries (Windows).bat" - it will install PyQt6 and matplotlib libraries
+  - Run "BLASTnBRUSH (Windows).bat" - it will open BLASTnBRUSH application in Python
+
 **- Exe version:**
-  -  Download TidyTOOL Windows.zip from Releases
+  -  Download BLASTnBRUSH Portable.zip from Releases
   -  Extract do desired folder
-  -  Open TidyTool folder
-  -  Run TidyTool.exe
+  -  Open BLASTnBRUSH folder
+  -  Run BLASTnBRUSH.exe
 
 **Important Notice:**
 This application might be falsely detected as a virus by some antivirus software. This is a false positive, which is a common issue for apps generated from Python using tools like auto-py-to-exe or PyInstaller.
 
 
 ### **Linux:**
-- Download TidyTool.zip from Releases
+- Download BLASTnBRUSH.zip from Releases
 - Extract to desired folder
-- Open TidyTool folder
-- Right-click inside folder → "Open in Terminal"
-- Paste command:
-```bash
-sudo apt install python3-pyqt6 python3-matplotlib
-```
-- Run TidyTOOL by command:
-```bash
-python3 main.py
-```
-
+- Open BLASTnBRUSH folder
+- Right-click on "Install Python libraries (Linux).sh" and select Run as Program
+- Right-click on "BLASTnBRUSH (Linux).sh" and select Run as Program
 
 ### **Mac:**
 - Download Python installer:
@@ -102,12 +88,12 @@ Choose Python 3.12.x and download 64-bit version:
 "macOS 64-bit universal2 installer"
 - Run installer
 - Click "Install Now"
-- Download TidyTool.zip from Releases
+- Download BLASTnBRUSH.zip from Releases
 - Extract to desired folder
-- Open TidyTool folder
-- Run Terminal (Command (⌘) + Space)
-- Navigate to downloaded TidyTool folder
-(eg./Users/username/Downloads/TidyTool)
+- Open BLASTnBRUSH folder
+- Press (Command (⌘) + Space), type Terminal in search window and run it
+- Navigate to downloaded BLASTnBRUSH folder
+(eg.cd Downloads/BLASTnBRUSH)
 - Paste command:
 ```bash
 pip3 install -r requirements.txt
@@ -180,7 +166,13 @@ python3 main.py
 ├── database
 ├	├── database_here.txt
 ├── resources
-├	├── tidytool.png
+├	├── BLASTnBRUSH.png
+├── BLASTnBRUSH (Linux).sh
+├── BLASTnBRUSH (MacOS).command
+├── BLASTnBRUSH (Windows).bat
+├── Install Python libraries (Linux).sh
+├── Install Python libraries (MacOS).command
+├── Install Python libraries (Windows).bat
 ├── main.py
 ├── requirements.txt
 ├── LICENCE
