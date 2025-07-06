@@ -71,7 +71,7 @@
   -  Run BLASTnBRUSH.exe
 
 **Important Notice:**
-This application might be falsely detected as a virus by some antivirus software. This is a false positive, which is a common issue for apps generated from Python using tools like auto-py-to-exe or PyInstaller.
+This application might be falsely flagged as a virus by some antivirus software. This is a false positive, which is a common issue for apps generated from Python using tools like auto-py-to-exe or PyInstaller.
 
 
 ### **Linux:**
@@ -108,81 +108,34 @@ python3 main.py
 ## How to Use
 
 1. In the **BLAST** tab:
-   - Choose a FASTA file to create BLAST database (Protein or Nucleotide),
-   - Paste query sequences in Query box,
+   - Choose a FASTA file(s) to create BLAST database(s) (Protein or Nucleotide),
+   - Paste query sequence(s) in Query box,
    - Run suitable BLAST search (BLASTP, BLASTN, BLASTX, TBLAXTN, TBLASTN),
-   - Click on **Show Alignment** to open full BLAST result,
-   - Select query in Query List and click on **View** to open Alignment coverage plot,
-   - Click on **Save sequences** to create FASTA file (contains headers combined with BLAST data and belonging sequences).
+   - Click on **Show Alignment** to open full BLAST result, if you wish save if from the file,
+   - Select query in Query List on the right and click on **View** to open Alignment coverage plot for each query. The number above aligement coverage informs about aligement lenght
+   - Click on **Save sequences** to create FASTA file (contains seqience queries, combined with BLAST data and belonging aminoacid. nucleotide sequences).
+   - To browse and later filter BLAST results precomputed with NCBI: first, load the database with full sequences by clicking **Load database**, then import the BLAST XML by clicking **Import BLAST results XML**. After that, click **Save sequences** to bind the XML with full-length sequences, making them ready for screening with Cleaner.
 2. In the **Cleaner** tab:
-   - Click **Choose FASTA File** and select `.fasta` files,
+   - Click **Choose FASTA File** and select `.fasta` files as ready datasets ot file prepared in previous step,
    - You can preview the files you selected by clicking the **Show Files** button,
    - Select the method for removing duplicates:
-     - Names (removes sequences with the same headers),
-     - Sequences (removes identical sequences),
+     - By names (removes sequences with the same headers),
+     - By sequences (removes identical sequences),
      - None selected (does not remove duplicates),
    - Click **Clean/Analyse** to start analyzing the selected files,
-   - The headers will appear in the **Genes** window,
-   if a file containing integrated BLAST information is loaded, the Score and E-value histograms will be generated automatically.
+   - The headers will appear in the **Sequences** window,
+ If a file containing integrated BLAST information is loaded, the user can select up to three histograms to display result distributions.
    - You can choose which histogram to display in each of the three panels by clicking the corresponding buttons,
    - You can choose which filter to apply by clicking the corresponding checkbox next to its name,
    - After entering the filter parameters, click the **Filter** button to display only the sequences that match the selected filters,
-   - Selected genes can be highlighted in the **Genes** list and moved to the **Selected names** list using the **ADD** button,
-   - By clicking the **Save FASTA** button, you save the genes from the **Selected names** list as a new FASTA file.
+   - Selected sequences can be highlighted in the **sequences** list and moved to the **Selected names** list using the **ADD** button,
+   - You can check for specific domains or motifs and their identity percentage when analyzing sequences,
+   - By right-clicking on each sequence, you can view the full sequence for the selected name,
+   - By clicking the Save FASTA button, you save the names and corresponding sequences from the Selected names list as a new FASTA file, ready to be analyzed in subsequent approaches.
 
 
----
 
-## Folder Structure
-
-```
-.
-├── libraries
-├	├── blast_parser.py         # BLAST XML parsing
-├	├── blast_utils.py          # BLAST execution
-├	├── blast_view.py           # BLAST plot view
-├	├── draw_utils.py           # plotting logic
-├	├── fasta_utils.py          # FASTA logic
-├	├── gui.py                  # main GUI
-├	├── move_utils.py           # list management helpers
-├	├── thread_utils.py         # background threads
-├── BLAST
-├	├── blastn.exe
-├	├── blastn
-├	├── blastp.exe
-├	├── blastp
-├	├── blastx.exe
-├	├── blastx
-├	├── tblastx.exe
-├	├── tblastx
-├	├── tblastn.exe
-├	├── tblastn
-├	├── makeblastdb.exe
-├	├── makeblastdb
-├	├── blast_formatter.exe
-├	├── blast_formatter
-├	├── ncbi-vdb-md.dll
-├	├── nghttp2.dll
-├── database
-├	├── database_here.txt
-├── resources
-├	├── BLASTnBRUSH.png
-├── BLASTnBRUSH (Linux).sh
-├── BLASTnBRUSH (MacOS).command
-├── BLASTnBRUSH (Windows).bat
-├── Install Python libraries (Linux).sh
-├── Install Python libraries (MacOS).command
-├── Install Python libraries (Windows).bat
-├── main.py
-├── requirements.txt
-├── LICENCE
-├── NCBI_LICENCE
-└── README.md
-```
-
----
-
-## Sample Data
+# Sample Data
 
 All databases used in testing the program can be download from following sources.
 
@@ -246,6 +199,89 @@ Pages D1036–D1041, https://doi.org/10.1093/nar/gku1195
 ```
 https://solgenomics.net/ftp/genomes/Nicotiana_benthamiana/annotation/Niben101/Niben101_annotation.proteins.fasta.gz
 ```
+
+
+#Case Use
+
+1.  **##Performance and Scalability##**
+   
+   - The CAZy protein database was downloaded and loaded in the Cleaner tab by clicking **Load FASTA file**.
+   - In the **Check duplicates section**, Sequences was selected, and the database was cleaned of duplicated sequences by clicking **Clean/Analyse**. (Since CAZy uses many sources of data repositories, the same sequence may be present under multiple names).
+   - Protein names from the GT2 family belonging to *Arabidopsis thaliana* were copy-pasted into the Enter by name window, then Filter was clicked. GT2 family list is available on CAZy database under the link https://www.cazy.org/IMG/cazy_data/GT2.txt
+   - All sequences were selected by checking **Select All**, then clicked **Add**.
+   - The database was saved by clicking **Save FASTA**, (database containing only the GT2 family from *Arabidopsis thaliana*).
+   - In the BLAST tab, all extracted sequences were used as queries against databases for *Nicotiana benthamiana, Populus tremula x tremuloides, Abies alba, Pinus radiata, Picea abies, and Ginkgo biloba*
+   - BLASTP was run
+   - Results were saved by clicking **Save Sequences**
+   - The saved results were loaded into the Cleaner tab. The BLAST results were deduplicated by **Clean/Analyse**. Protein lengths were filtered between 100–800 amino acids, similarity thresholds set between 50%–100%, and alignment length between 100 and max. Then **Filter** was clicked.
+   - **Select All** and **Add**  and **Save Fasta** were clicked
+   - The results were ready to be exported to MEGA-X for phylogenetic analysis.
+
+2. **##Hypothesis-driven analysis##**
+   
+   - The TAIR protein database was downloaded and loaded into the Cleaner section. **Clean/Analyse** was clicked without removing any duplicates.
+   - In the **Enter by name field**, the text "CSLA, 1" was typed, and **Filter** was clicked to obtain all CSLA singular isoforms
+   - All sequences were selected, **Add** clicked, and the **FASTA** file saved.
+   - The obtained sequences were used as queries in the BLAST tab after loading databases for *Nicotiana benthamiana, Populus tremula x tremuloides, Abies alba, Pinus radiata, Picea abies, and Ginkgo biloba*.
+   - BLASTP was run.
+   - Results were saved by clicking **Save Sequences**.
+   - The saved results were loaded into the Cleaner tab. The BLAST results were deduplicated. Protein lengths were filtered between 100–800 amino acids, similarity thresholds set between 50%–100%, and alignment length between 100 and max. Then **Filter** was clicked.
+   - **Select all** and **ADD**
+   - The results were ready to be expored to MEGA-X for phylogenetic analysis.
+     
+
+---
+
+## Folder Structure
+
+```
+.
+├── libraries
+├	├── blast_parser.py         # BLAST XML parsing
+├	├── blast_utils.py          # BLAST execution
+├	├── blast_view.py           # BLAST plot view
+├	├── draw_utils.py           # plotting logic
+├	├── fasta_utils.py          # FASTA logic
+├	├── gui.py                  # main GUI
+├	├── move_utils.py           # list management helpers
+├	├── thread_utils.py         # background threads
+├── BLAST
+├	├── blastn.exe
+├	├── blastn
+├	├── blastp.exe
+├	├── blastp
+├	├── blastx.exe
+├	├── blastx
+├	├── tblastx.exe
+├	├── tblastx
+├	├── tblastn.exe
+├	├── tblastn
+├	├── makeblastdb.exe
+├	├── makeblastdb
+├	├── blast_formatter.exe
+├	├── blast_formatter
+├	├── ncbi-vdb-md.dll
+├	├── nghttp2.dll
+├── database
+├	├── database_here.txt
+├── resources
+├	├── BLASTnBRUSH.png
+├── BLASTnBRUSH (Linux).sh
+├── BLASTnBRUSH (MacOS).command
+├── BLASTnBRUSH (Windows).bat
+├── Install Python libraries (Linux).sh
+├── Install Python libraries (MacOS).command
+├── Install Python libraries (Windows).bat
+├── main.py
+├── requirements.txt
+├── LICENCE
+├── NCBI_LICENCE
+└── README.md
+```
+
+---
+
+
 
 ---
 
