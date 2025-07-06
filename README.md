@@ -2,10 +2,12 @@
 
 **BLASTnBRUSH** is a user-friendly, graphical application designed to facilitate working with sequence databases, especially for researchers without advanced bioinformatics skills. It provides a powerful and intuitive **PyQt6-based GUI** for:
 
-- Removing duplicate sequences,
-- Filtering sequences by name, length, or similarity,
-- Parsing and visualizing BLAST results,
-- Displaying histograms for score, E-value, and sequence length.
+- LLocal BLAST analysis facilitating multiple database loading and custom-provided databases with multiple queries
+- Visualizing BLAST results and alignment coverage for each queries
+- Removing duplicate sequences
+- Filtering both by the nucleotide/amino acid sequence and by sequence identifiers
+- Filtering BLAST results (both user-performed BLAST and NCBI BLAST XML files) by sequence length, alignment length, E-value, bit score, identity, similarity, motif/domain search, and start codon detection
+- Displaying histograms for BLAST metrics
 
 ---
 ![ScreenShot](resources/Windows.png)
