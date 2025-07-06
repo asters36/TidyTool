@@ -203,7 +203,7 @@ https://solgenomics.net/ftp/genomes/Nicotiana_benthamiana/annotation/Niben101/Ni
 
 # Case Use
 
-1.  ## **Performance and Scalability** 
+## 1.   **Performance and Scalability** 
    
    - The CAZy protein database was downloaded and loaded in the Cleaner tab by clicking **Load FASTA file**.
    - In the **Check duplicates section**, Sequences was selected, and the database was cleaned of duplicated sequences by clicking **Clean/Analyse**. (Since CAZy uses many sources of data repositories, the same sequence may be present under multiple names).
@@ -217,7 +217,7 @@ https://solgenomics.net/ftp/genomes/Nicotiana_benthamiana/annotation/Niben101/Ni
    - **Select All** and **Add**  and **Save Fasta** were clicked
    - The results were ready to be exported to MEGA-X for phylogenetic analysis.
 
-2. ## **Hypothesis-driven analysis**
+## 2. **Hypothesis-driven analysis**
    
    - The TAIR protein database was downloaded and loaded into the Cleaner section. **Clean/Analyse** was clicked without removing any duplicates.
    - In the **Enter by name field**, the text "CSLA, 1" was typed, and **Filter** was clicked to obtain all CSLA singular isoforms
