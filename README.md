@@ -16,32 +16,30 @@
 
 ## Features
 **BLAST+**:
-- Load multiple FASTA files at once for creating BLAST database
-- Run BLASTP, BLASTN, BLASTX, TBLASTN or TBLASTX
-- Show Alignments (BLAST output file, -outfrm 0)
-- Show Alignment coverage plots
-- Export FASTA file with BLAST headers for further analyse in "Clean" tab
+- Load multiple FASTA files simultaneously for use in BLAST searches
+- Load BLAST XML result files and FASTA databases to link BLAST hits with the corresponding database sequences
+- Add multiple queries at once 
+- Run blastp, blastn, blastx, tblastn or tblastx
+- Display alignments and BLAST results (BLAST output file, -outfrm 0)
+- Show alignment coverage plots
+- Export files with BLAST metrics and alignments
+- Export FASTA files with BLAST metrics and sequences for further analysis in the "Cleaner" tab
 
 **Cleaner**:
-- Load multiple FASTA files at once
-- Remove duplicates (by name, sequence, or both)
-- Filter sequences based on:
+- Load multiple FASTA files to be processed
+- Interactive histogram display for BLAST metrics (sequence length, Bit score, E-value, Alignment Length, Identity, Similarity)
+- Remove duplicates from BLAST results (by name, sequence, or both)
+- Filter and extract sequences based on:
   - Name (partial or full match),
-  - Sequence similarity (custom threshold),
-  - Length range (min/max),
-  - Start codon (`M` for proteins, `ATG` for genes),
-  - Score, E-value, Alignment Length, Identity, Similarity (parsed from BLAST headers)
-- Interactive histogram display:
-  - Length
-  - Score
-  - E-value
-  - Alignment Length
-  - Identity
-  - Similarity
+  - domain/motifs similarity (partial or full match),
+  - Sequence length (min/max),
+  - Start codon presence (start metionin in proteins and ATG codon for genes),
+  - BLAST metrics (Bit score, E-value, Alignment Length, Identity, Similarity (from XML file))
+  - Right-click a sequence name in the list to view and copy its full FASTA format
 - Export selected sequences to a FASTA file
-- Right-click on a sequence → see full FASTA in a copyable popup
 
 ---
+# Instalation
 
 ## Requirements
 
