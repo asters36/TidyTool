@@ -111,6 +111,7 @@ python3 main.py
    - Choose a FASTA file(s) to create BLAST database(s) (Protein or Nucleotide),
    - Paste query sequence(s) in Query box,
    - Run suitable BLAST search (BLASTP, BLASTN, BLASTX, TBLAXTN, TBLASTN),
+     ![ScreenShot](resources/BLASTP_results_GT2.png)
    - Click on **Show Alignment** to open full BLAST result, if you wish save if from the file,
    - Select query in Query List on the right and click on **View** to open Alignment coverage plot for each query. The number above aligement coverage informs about aligement lenght
    - Click on **Save sequences** to create FASTA file (contains seqience queries, combined with BLAST data and belonging aminoacid. nucleotide sequences).
