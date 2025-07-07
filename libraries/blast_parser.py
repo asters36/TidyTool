@@ -1,6 +1,6 @@
-# This file is part of TidyTool
+# This file is part of BLASTnBRUSH
 # Copyright (c) 2025 Aleksandra Liszka, Aleksandra Marcisz, Artur Stołowski 
-# Licensed under the MIT License
+# Licensed under the GPL v3.0 License
 
 import xml.etree.ElementTree as ET
 
@@ -27,10 +27,24 @@ def parse_blast_output(blast_file_path, output_txt_path):
                     positives = hsp.findtext("Hsp_positive", "?")
                     gaps = hsp.findtext("Hsp_gaps", "?")
 
-                    results.append((hit_def, hit_len, score, evalue, align_len, identities, positives, gaps))
+                    try:
+                        align_len_val = int(align_len)
+                        identities_pct = f"{(int(identities) / align_len_val * 100):.0f}%" if align_len_val else "?"
+                        positives_pct = f"{(int(positives) / align_len_val * 100):.0f}%" if align_len_val else "?"
+                    except (ValueError, TypeError):
+                        identities_pct = "?"
+                        positives_pct = "?"
+
+                    results.append((
+                        hit_def, hit_len, score, evalue, align_len,
+                        identities_pct, positives_pct, gaps
+                    ))
 
             for r in results:
-                tag = f"[Length: {r[1]}, Score: {r[2]}, E-Value: {r[3]}, Alignment Length: {r[4]}, Identities: {r[5]}, Positives: {r[6]}, Gaps: {r[7]}]"
+                tag = (
+                    f"[Length: {r[1]}, Score: {r[2]}, E-Value: {r[3]}, "
+                    f"Alignment Length: {r[4]}, Identities: {r[5]}, Positives: {r[6]}, Gaps: {r[7]}]"
+                )
                 out.write(f"{r[0]} {tag}\n")
 
             out.write("\n")

@@ -1,6 +1,6 @@
-# This file is part of TidyTool
+# This file is part of BLASTnBRUSH
 # Copyright (c) 2025 Aleksandra Liszka, Aleksandra Marcisz, Artur Stołowski 
-# Licensed under the MIT License
+# Licensed under the GPL v3.0 License
 
 import matplotlib.patches
 import sys
@@ -44,7 +44,7 @@ from thread_utils import DeleteDuplicatesWorker
 from fasta_utils import load_fasta_file, save_fasta_to_db, fetch_all_sequences, fetch_advanced_filtered_sequences
 from draw_utils import draw_length_histogram, draw_bitscore_histogram, draw_evalue_histogram, draw_alength_histogram, draw_identities_histogram, draw_positives_histogram
 from move_utils import move_checked_items
-from blast_utils import load_prev_database, choose_database, choose_database_n, run_blast,run_blastn,run_blastx, save_sequences_from_blast, run_tblastn, run_tblastx, open_sequence_from_xml, show_blast_file
+from blast_utils import load_prev_database, choose_database, choose_database_n, run_blast,run_blastn,run_blastx, save_sequences_from_blast, run_tblastn, run_tblastx, open_sequence_from_xml, show_blast_file, save_blast_output_as
 from blast_view import parse_blast_xml, BlastAlignmentViewer
 from filter_worker import FilterWorker
 from filter_thread import start_parallel_filtering
@@ -64,8 +64,8 @@ class MainWindow(QMainWindow):
         max_score = 0
         min_eval = 0
         max_eval = 0
-        self.setWindowTitle("TidyTOOL")
-        self.setWindowIcon(QIcon("Resources/tidytool.png"))
+        self.setWindowTitle("BLASTnBRUSH")
+        self.setWindowIcon(QIcon("Resources/BLASTnBRUSH.png"))
 
         self.status = QStatusBar()
         self.setStatusBar(self.status)
@@ -153,7 +153,7 @@ class MainWindow(QMainWindow):
         #------------------
         checkbox_row = QHBoxLayout()
         self.name_box = QCheckBox("Names")
-        self.name_box.setChecked(True)
+        self.name_box.setChecked(False)
         #------------------
         self.sequence_box = QCheckBox("Sequences")
         self.sequence_box.setChecked(True)
@@ -351,7 +351,7 @@ class MainWindow(QMainWindow):
         left_layout.addWidget(self.label_analyse, alignment=Qt.AlignmentFlag.AlignHCenter)
         left_layout.addWidget(self.load_button, alignment=Qt.AlignmentFlag.AlignHCenter)
         left_layout.addWidget(self.show_files_button, alignment=Qt.AlignmentFlag.AlignHCenter)
-        left_layout.addWidget(self.label_file_name, alignment=Qt.AlignmentFlag.AlignHCenter)
+        #left_layout.addWidget(self.label_file_name, alignment=Qt.AlignmentFlag.AlignHCenter)
         left_layout.addWidget(self.make_hor_separator())
         left_layout.addWidget(self.label_checkdup, alignment=Qt.AlignmentFlag.AlignHCenter)
         left_layout.addLayout(checkbox_row)
@@ -375,7 +375,7 @@ class MainWindow(QMainWindow):
         left_layout.addWidget(self.make_hor_separator())
         #------------------
         self.image_label = QLabel()
-        self.image_label.setPixmap(QPixmap("resources/tidytool.png").scaledToWidth(30, Qt.TransformationMode.SmoothTransformation))
+        self.image_label.setPixmap(QPixmap("resources/BLASTnBRUSH.png").scaledToWidth(30, Qt.TransformationMode.SmoothTransformation))
         #left_layout.addWidget(self.image_label, alignment=Qt.AlignmentFlag.AlignHCenter)
         left_layout.addWidget(self.label_copyright, alignment=Qt.AlignmentFlag.AlignHCenter)
         #------------------
@@ -396,7 +396,7 @@ class MainWindow(QMainWindow):
     def setup_middle_panel(self):
         layout = QVBoxLayout()
         #------------------
-        self.label_genes = QLabel("Genes")
+        self.label_genes = QLabel("Sequences")
         font_bold = self.label_genes.font()
         font_bold.setBold(True)
         font_bold.setPointSize(14)   
@@ -903,7 +903,13 @@ class MainWindow(QMainWindow):
                 if not any(self.selected_names_listbox.item(j).text() == text for j in range(self.selected_names_listbox.count())):
                     self.selected_names_listbox.addItem(text)
         self.amount2_label.setText(f"Records: {self.selected_names_listbox.count()}")
-        
+    
+    def prevent_uncheck_name(self, state):
+        self.name_box.setChecked(True)    
+            
+            
+    def prevent_uncheck_seq(self, state):        
+        self.sequence_box.setChecked(True)
         
     ############# SELECT ALL GENES CHECKBOX ############################
     def toggle_select_all_genes(self, state):
@@ -1114,15 +1120,16 @@ class MainWindow(QMainWindow):
     ############## CHECKBOXES TEXTS ############################
     def update_atg_checkbox_text(self):
         sender = self.sender()
+
         if sender == self.protein_checkbox_obj and self.protein_checkbox_obj.isChecked():
-            self.gene_checkbox_obj.blockSignals(True)
+            self.protein_checkbox_obj.setEnabled(False)
             self.gene_checkbox_obj.setChecked(False)
-            self.gene_checkbox_obj.blockSignals(False)
+            self.gene_checkbox_obj.setEnabled(True)
             self.atg_checkbox.setText("Check M")
         elif sender == self.gene_checkbox_obj and self.gene_checkbox_obj.isChecked():
-            self.protein_checkbox_obj.blockSignals(True)
+            self.gene_checkbox_obj.setEnabled(False)
             self.protein_checkbox_obj.setChecked(False)
-            self.protein_checkbox_obj.blockSignals(False)
+            self.protein_checkbox_obj.setEnabled(True)
             self.atg_checkbox.setText("Check ATG")
         elif not self.protein_checkbox_obj.isChecked() and not self.gene_checkbox_obj.isChecked():
             self.atg_checkbox.setText("Check")
@@ -1136,7 +1143,7 @@ class MainWindow(QMainWindow):
         self.len_box_low.setValue(0)
         self.len_box_hi.setValue(900000)
         self.length_checkbox_obj.setChecked(False)
-        self.protein_checkbox_obj.setChecked(False)
+        self.protein_checkbox_obj.setChecked(True)
         self.gene_checkbox_obj.setChecked(False)
         self.atg_checkbox.setChecked(False)
         self.score_checkbox_obj.setChecked(False)
@@ -1296,6 +1303,11 @@ class MainWindow(QMainWindow):
         self.save_sequences_button.clicked.connect(lambda: save_sequences_from_blast(self))
         self.save_sequences_button.setEnabled(False)
         
+        self.save_blast_xml_button = QPushButton("Save BLAST XML")
+        self.save_blast_xml_button.setFixedSize(150, 40)
+        self.save_blast_xml_button.clicked.connect(lambda:save_blast_output_as(self))
+        self.save_blast_xml_button.setEnabled(False)
+        
         #load_base_layout.addWidget(self.load_base_button)
         load_base_layout.addWidget(self.base_select_button)
         load_base_layout.addWidget(self.base2_select_button)
@@ -1310,7 +1322,8 @@ class MainWindow(QMainWindow):
         open_result_layout = QHBoxLayout()
         open_result_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         open_result_layout.addWidget(self.open_blast_file_button)
-        open_result_layout.addWidget( self.save_sequences_button)
+        open_result_layout.addWidget(self.save_sequences_button)
+        open_result_layout.addWidget(self.save_blast_xml_button)
         
         widgets = [
             self.label_database_file,
@@ -1349,7 +1362,19 @@ class MainWindow(QMainWindow):
         blast_info_layout = QHBoxLayout()
         blast_info_layout.addWidget(self.view_alignment_button)
         blast_info_layout.addStretch()
-        blast_info_layout.addWidget(QLabel("BLAST+ tools are developed by the National Center for Biotechnology Information (NCBI)"))
+        blast_ref_layout = QVBoxLayout()
+        blast_ref_layout.setAlignment(Qt.AlignmentFlag.AlignRight)
+        ref1 = QLabel("BLAST+ tools are developed by the National Center for Biotechnology Information (NCBI)")
+        ref2 = QLabel("(Camacho, 2009; Sayers, 2025)")
+        ref1.setAlignment(Qt.AlignmentFlag.AlignRight)
+        ref2.setAlignment(Qt.AlignmentFlag.AlignRight)
+        blast_ref_layout.addWidget(ref1)
+        blast_ref_layout.addWidget(ref2)
+        
+        
+        blast_info_layout.addLayout(blast_ref_layout)
+        
+        
         right_layout.addLayout(blast_info_layout)
         
         #---------------------------RIGHT---------------------------
@@ -1363,6 +1388,8 @@ class MainWindow(QMainWindow):
         # --------------------------- QUERY LIST + VIEW BUTTON ---------------------------
         outer_layout.addLayout(main_layout)
         self.blast_tab.setLayout(outer_layout)
+
+
 
     
 if __name__ == "__main__":

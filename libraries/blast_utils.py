@@ -1,6 +1,6 @@
-# This file is part of TidyTool
+# This file is part of BLASTnBRUSH
 # Copyright (c) 2025 Aleksandra Liszka, Aleksandra Marcisz, Artur Stołowski 
-# Licensed under the MIT License
+# Licensed under the GPL v3.0 License
 
 from blast_parser import parse_blast_output
 import subprocess
@@ -231,6 +231,7 @@ def run_blast(widget, input_textbox, output_textbox, db_label):
         QMessageBox.information(widget, "BLAST", "BLAST complete!")
         widget.save_sequences_button.setEnabled(True)
         widget.open_blast_file_button.setEnabled(True)
+        widget.save_blast_xml_button.setEnabled(True)
 
     except Exception as e:
         QMessageBox.critical(widget, "BLAST Error", str(e))
@@ -309,6 +310,7 @@ def run_blastn(widget, input_textbox, output_textbox, db_label):
         QMessageBox.information(widget, "BLAST", "BLAST complete!")
         widget.save_sequences_button.setEnabled(True)
         widget.open_blast_file_button.setEnabled(True)
+        widget.save_blast_xml_button.setEnabled(True)
 
     except Exception as e:
         QMessageBox.critical(widget, "BLAST Error", str(e))
@@ -387,6 +389,7 @@ def run_blastx(widget, input_textbox, output_textbox, db_label):
         QMessageBox.information(widget, "BLAST", "BLAST complete!")
         widget.save_sequences_button.setEnabled(True)
         widget.open_blast_file_button.setEnabled(True)
+        widget.save_blast_xml_button.setEnabled(True)
 
     except Exception as e:
         QMessageBox.critical(widget, "BLAST Error", str(e))
@@ -465,6 +468,7 @@ def run_tblastn(widget, input_textbox, output_textbox, db_label):
         QMessageBox.information(widget, "BLAST", "BLAST complete!")
         widget.save_sequences_button.setEnabled(True)
         widget.open_blast_file_button.setEnabled(True)
+        widget.save_blast_xml_button.setEnabled(True)
 
     except Exception as e:
         QMessageBox.critical(widget, "BLAST Error", str(e))
@@ -543,6 +547,7 @@ def run_tblastx(widget, input_textbox, output_textbox, db_label):
         QMessageBox.information(widget, "BLAST", "BLAST complete!")
         widget.save_sequences_button.setEnabled(True)
         widget.open_blast_file_button.setEnabled(True)
+        widget.save_blast_xml_button.setEnabled(True)
 
     except Exception as e:
         QMessageBox.critical(widget, "BLAST Error", str(e))
@@ -557,7 +562,7 @@ def save_sequences_from_blast(widget):
     try:
         from PyQt6.QtWidgets import QFileDialog, QMessageBox
 
-        # Krok 1: Wczytaj sekwencje FASTA jako dict {ID: sequence}
+        
         seq_dict = {}
         with open("merged_database.fasta", "r", encoding="utf-8") as f:
             content = f.read().split(">")
@@ -567,11 +572,11 @@ def save_sequences_from_blast(widget):
                 lines = entry.strip().split("\n")
                 header = lines[0]
                 sequence = "".join(lines[1:])
-                seq_id = header.split()[0].strip()  # np. AT1G01010.1
+                seq_id = header.split()[0].strip() 
                 seq_dict[seq_id] = sequence.strip()
 
-        # Krok 2: Wczytaj ID + pełny wiersz z BLAST
-        selected_entries = []  # lista par (id, linia z blast)
+ 
+        selected_entries = []  
         with open("blast_out.txt", "r", encoding="utf-8") as f:
             for line in f:
                 if line.startswith("Query:") or line.startswith("BLAST Results:") or not line.strip():
@@ -579,7 +584,7 @@ def save_sequences_from_blast(widget):
                 identifier = line.split()[0].strip()
                 selected_entries.append((identifier, line.strip()))
 
-        # Krok 3: Zapisz sekwencje z nagłówkiem z BLAST
+
         output_path, _ = QFileDialog.getSaveFileName(widget, "Save FASTA File", "", "FASTA Files (*.fasta *.fa);;All Files (*)")
         if not output_path:
             return
@@ -595,6 +600,29 @@ def save_sequences_from_blast(widget):
 
     except Exception as e:
         QMessageBox.critical(widget, "Error", str(e))
+
+def save_blast_output_as(self):
+    from PyQt6.QtWidgets import QFileDialog, QMessageBox
+    import shutil
+    import os
+
+    if not os.path.exists("output.xml"):
+        QMessageBox.warning(self, "Warning", "File 'output.txt' not exists.")
+        return
+
+    file_name, _ = QFileDialog.getSaveFileName(
+        self,
+        "Save BLAST XML as...",
+        "",
+        "XML Files (*.xml);;All Files (*)"
+    )
+
+    if file_name:
+        try:
+            shutil.copyfile("output.xml", file_name)
+            QMessageBox.information(self, "Success", f"File saved as: {file_name}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"File not saved:\n{e}")
 
 
 import xml.etree.ElementTree as ET

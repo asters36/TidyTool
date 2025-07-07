@@ -1,6 +1,6 @@
-# This file is part of TidyTool
+# This file is part of BLASTnBRUSH
 # Copyright (c) 2025 Aleksandra Liszka, Aleksandra Marcisz, Artur Stołowski 
-# Licensed under the MIT License
+# Licensed under the GPL v3.0 License
 
 
 import xml.etree.ElementTree as ET
