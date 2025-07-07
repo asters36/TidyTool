@@ -232,7 +232,7 @@ https://solgenomics.net/ftp/genomes/Nicotiana_benthamiana/annotation/Niben101/Ni
       ![ScreenShot](resources/CSLA_BLAST.png)
    - The saved results were loaded into the Cleaner tab. The BLAST results were deduplicated. Protein lengths were filtered between 100–800 amino acids, similarity thresholds set between 50%–100%, and alignment length between 100 and max. Then **Filter** was clicked.
    - **Select all** and **ADD**
- ![ScreenShot](CSLA_cleaned.png)
+ ![ScreenShot](resources/CSLA_cleaned.png)
    - The results were ready to be expored to MEGA-X for phylogenetic analysis.
      
 
