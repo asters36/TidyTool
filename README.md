@@ -10,8 +10,6 @@
 - Displaying histograms for BLAST metrics
 
 ---
-![ScreenShot](resources/Windows.png)
-![ScreenShot2](resources/Windows_2.png)
 ---
 
 ## Features
@@ -111,10 +109,9 @@ python3 main.py
    - Choose a FASTA file(s) to create BLAST database(s) (Protein or Nucleotide),
    - Paste query sequence(s) in Query box,
    - Run suitable BLAST search (BLASTP, BLASTN, BLASTX, TBLAXTN, TBLASTN),
-     ![ScreenShot](resources/BLASTP_results_GT2.png)
    - Click on **Show Alignment** to open full BLAST result, if you wish save if from the file,
    - Select query in Query List on the right and click on **View** to open Alignment coverage plot for each query. The number above aligement coverage informs about aligement lenght
-   - Click on **Save sequences** to create FASTA file (contains seqience queries, combined with BLAST data and belonging aminoacid. nucleotide sequences).
+   - Click on **Save sequences** to create FASTA file (contains seqience queries, combined with BLAST data and belonging amino acids /nucleotide sequences).
    - To browse and later filter BLAST results precomputed with NCBI: first, load the database with full sequences by clicking **Load database**, then import the BLAST XML by clicking **Import BLAST results XML**. After that, click **Save sequences** to bind the XML with full-length sequences, making them ready for screening with Cleaner.
 2. In the **Cleaner** tab:
    - Click **Choose FASTA File** and select `.fasta` files as ready datasets ot file prepared in previous step,
@@ -213,9 +210,13 @@ https://solgenomics.net/ftp/genomes/Nicotiana_benthamiana/annotation/Niben101/Ni
    - The database was saved by clicking **Save FASTA**, (database containing only the GT2 family from *Arabidopsis thaliana*).
    - In the BLAST tab, all extracted sequences were used as queries against databases for *Nicotiana benthamiana, Populus tremula x tremuloides, Abies alba, Pinus radiata, Picea abies, and Ginkgo biloba*
    - BLASTP was run
+        ![ScreenShot](resources/BLASTP_results_GT2.png)
    - Results were saved by clicking **Save Sequences**
-   - The saved results were loaded into the Cleaner tab. The BLAST results were deduplicated by **Clean/Analyse**. Protein lengths were filtered between 100–800 amino acids, similarity thresholds set between 50%–100%, and alignment length between 100 and max. Then **Filter** was clicked.
+   - The saved results were loaded into the Cleaner tab. The BLAST results were deduplicated by **Clean/Analyse**.
+    ![ScreenShot](resources/GT2_BLAST_cleaner.png)
+   - Protein lengths were filtered between 100–800 amino acids, similarity thresholds set between 50%–100%, and alignment length between 100 and max. Then **Filter** was clicked.
    - **Select All** and **Add**  and **Save Fasta** were clicked
+      ![ScreenShot](resources/GT2_BLAST_cleaned.png)
    - The results were ready to be exported to MEGA-X for phylogenetic analysis.
 
 ## 2. **Hypothesis-driven analysis**
