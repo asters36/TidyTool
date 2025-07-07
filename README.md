@@ -206,6 +206,7 @@ https://solgenomics.net/ftp/genomes/Nicotiana_benthamiana/annotation/Niben101/Ni
    - The CAZy protein database was downloaded and loaded in the Cleaner tab by clicking **Load FASTA file**.
    - In the **Check duplicates section**, Sequences was selected, and the database was cleaned of duplicated sequences by clicking **Clean/Analyse**. (Since CAZy uses many sources of data repositories, the same sequence may be present under multiple names).
    - Protein names from the GT2 family belonging to *Arabidopsis thaliana* were copy-pasted into the Enter by name window, then Filter was clicked. GT2 family list is available on CAZy database under the link https://www.cazy.org/IMG/cazy_data/GT2.txt
+      ![ScreenShot](resources/GT2_extract.png)
    - All sequences were selected by checking **Select All**, then clicked **Add**.
    - The database was saved by clicking **Save FASTA**, (database containing only the GT2 family from *Arabidopsis thaliana*).
    - In the BLAST tab, all extracted sequences were used as queries against databases for *Nicotiana benthamiana, Populus tremula x tremuloides, Abies alba, Pinus radiata, Picea abies, and Ginkgo biloba*
@@ -223,12 +224,15 @@ https://solgenomics.net/ftp/genomes/Nicotiana_benthamiana/annotation/Niben101/Ni
    
    - The TAIR protein database was downloaded and loaded into the Cleaner section. **Clean/Analyse** was clicked without removing any duplicates.
    - In the **Enter by name field**, the text "CSLA, 1" was typed, and **Filter** was clicked to obtain all CSLA singular isoforms
+      ![ScreenShot](resources/CSLA_extract.png)
    - All sequences were selected, **Add** clicked, and the **FASTA** file saved.
    - The obtained sequences were used as queries in the BLAST tab after loading databases for *Nicotiana benthamiana, Populus tremula x tremuloides, Abies alba, Pinus radiata, Picea abies, and Ginkgo biloba*.
    - BLASTP was run.
    - Results were saved by clicking **Save Sequences**.
+      ![ScreenShot](resources/CSLA_BLAST.png)
    - The saved results were loaded into the Cleaner tab. The BLAST results were deduplicated. Protein lengths were filtered between 100–800 amino acids, similarity thresholds set between 50%–100%, and alignment length between 100 and max. Then **Filter** was clicked.
    - **Select all** and **ADD**
+ ![ScreenShot](CSLA_cleaned.png)
    - The results were ready to be expored to MEGA-X for phylogenetic analysis.
      
 
